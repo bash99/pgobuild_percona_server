@@ -12,7 +12,7 @@ git clone https://github.com/bash99/pgobuild_percona_server.git pspgo-utils
 #### install gcc/g++
 use aleast gcc 4.9, 5.2 or higher is fine, use devtoolset-4-gcc-c++ in centos 7(may be 6)  
 see install-devtoolset-4-gcc.sh
-#### install jemalloc pxz
+#### install jemalloc pxz numactl-devel rh-mysql57-mecab-devel
 make sure ```/usr/lib64/libjemalloc.so.1``` exists or create a link for it
 #### install boost
 boost_1_59_0 (https://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.bz2/download)

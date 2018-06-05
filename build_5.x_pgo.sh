@@ -37,7 +37,7 @@ cd ${CURPATH}_opt
 ### TEMPORARY HACK TO AVOID COMPILING TB (WHICH IS NOT READY YET)
 rm -Rf ./plugin/tokudb-backup-plugin
 
-cmake . -DWITH_ZLIB=system -DBUILD_CONFIG=mysql_release -DFEATURE_SET=community -DWITH_EMBEDDED_SERVER=OFF -DWITH_TOKUDB=0 -DDOWNLOAD_BOOST=0 -DWITH_BOOST=../boost_1_59_0 -DWITH_SSL=system -DWITH_PAM=ON ${ASAN} | tee /tmp/5.7_opt_build
+cmake . -DWITH_ZLIB=system -DBUILD_CONFIG=mysql_release -DFEATURE_SET=community -DWITH_NUMA=ON -DWITH_SYSTEMD=1 -DWITH_EMBEDDED_SERVER=OFF -DWITH_TOKUDB=0 -DWITH_ROCKSDB=0 -DDOWNLOAD_BOOST=0 -DWITH_BOOST=../boost_1_59_0 -DWITH_SSL=bundled -DWITH_MECAB=/opt/mecab/ -DENABLE_DOWNLOADS=1 -DWITH_PAM=ON ${ASAN} | tee /tmp/5.7_opt_build
 if [ $? -ne 0 ]; then echo "Assert: non-0 exit status detected!"; exit 1; fi
 if [ "${ASAN}" != "" -a $MS -eq 1 ]; then
   ASAN_OPTIONS="detect_leaks=0" make -j12 | tee -a /tmp/5.7_opt_build  # Upstream is affected by http://bugs.mysql.com/bug.php?id=80014 (fixed in PS)
@@ -55,7 +55,7 @@ sleep 60;
 
 
 ### generate profile
-sh ../pspgo-utils/train-sysbench.sh
+sh ../pspgo-utils/train-sysbench.sh | tee /tmp/train_onprofile.txt
 
 # /usr/local/src/tpcc-mysql-autoinc-pk/tpcc_start -dtpcc100 -utpcc -ptpcc -w100 -c32 -r300 -l3600
 
