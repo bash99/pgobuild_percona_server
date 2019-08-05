@@ -1,0 +1,6 @@
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MYSQL_BASE/lib/
+export SYSBENCH_LUA_DIR=$MYSQL_BASE/sysbench/share/sysbench/
+
+$MYSQL_BASE/sysbench/bin/sysbench --test=$SYSBENCH_LUA_DIR/select.lua --oltp-table-size=2000000 --oltp-tables-count=16 --num-threads=16  --max-time=50 --max-requests=0 --report-interval=5 --db-driver=mysql --mysql-ignore-errors=1062 --mysql-table-engine=innodb --oltp-read-only=on --mysql-user=sbtest --mysql-password=sbtest12 --mysql-socket=$MYSQL_BASE/data/mysql.sock run
+$MYSQL_BASE/sysbench/bin/sysbench --test=$SYSBENCH_LUA_DIR/oltp.lua --oltp-table-size=2000000 --oltp-tables-count=16 --num-threads=16  --max-time=160 --max-requests=0 --report-interval=5 --db-driver=mysql --mysql-ignore-errors=1062 --mysql-table-engine=innodb --oltp-read-only=on --mysql-user=sbtest --mysql-password=sbtest12 --mysql-socket=$MYSQL_BASE/data/mysql.sock run
+$MYSQL_BASE/sysbench/bin/sysbench --test=$SYSBENCH_LUA_DIR/oltp.lua --oltp-table-size=2000000 --oltp-tables-count=16 --num-threads=16  --max-time=160 --max-requests=0 --report-interval=5 --db-driver=mysql --mysql-ignore-errors=1062 --mysql-table-engine=innodb --oltp-read-only=off --mysql-user=sbtest --mysql-password=sbtest12 --mysql-socket=$MYSQL_BASE/data/mysql.sock run
