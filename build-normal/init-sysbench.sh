@@ -6,12 +6,13 @@ create database sbtest;
 grant all on sbtest.* to sbtest@localhost;
 EOF
 
-#echo "if sysbench complain it can not found oltp, set SYSBENCH_LUA_DIR to where you can found the oltp.lua file!"
-git clone --depth 1 https://github.com/akopytov/sysbench -b 0.5 sysbench
-./autogen.sh 
-./configure --with-mysql=$MYSQL_BASE
-make -j 5
-make install prefix=$MYSQL_BASE/sysbench
+rm -rf sysbench
+git clone --depth 1 https://github.com/akopytov/sysbench -b 0.5 sysbench \
+&& cd sysbench \
+&& ./autogen.sh \
+&& ./configure --with-mysql=$MYSQL_BASE \
+&& make -j ${nproc} \
+&& make install prefix=$MYSQL_BASE/sysbench
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MYSQL_BASE/lib/
 export SYSBENCH_LUA_DIR=$MYSQL_BASE/sysbench/share/sysbench/
