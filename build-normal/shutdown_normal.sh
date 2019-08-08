@@ -6,5 +6,5 @@ MYSQL_BASE=$1
 SELF_PATH=$( dirname "${BASH_SOURCE[0]}" )
 . $SELF_PATH/common.sh
 
-sh -c "$MYSQLD_WITHOPT" &
-sleep 3 && tail $MYSQL_LOG
+#echo $MYSQLADMIN_PATH -u root --socket=$MYSQL_SOCK_PATH shutdown
+$MYSQLADMIN_PATH -u root --socket=$MYSQL_SOCK_PATH shutdown

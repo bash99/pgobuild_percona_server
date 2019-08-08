@@ -14,7 +14,7 @@ logfile_size=$(echo "$pool_max/8"|bc)
 pool_chunk_size=$(($logfile_size>1024?128:$logfile_size/8))
 logfile_size=$(($logfile_size<2048?$logfile_size:2048))
 
-cat > $datadir/../etc/my.automem.cnf <<EOF
+cat <<EOF
 [mysqld_safe]
 malloc-lib=/usr/lib64/libjemalloc.so.1
 datadir=$datadir
@@ -35,16 +35,16 @@ pid-file=${datadir}/mysql.pid
 # innodb_stats_on_metadata=OFF
 
 # below has good default when >= 5.7
-# innodb_adaptive_hash_index_parts=8
+loose_innodb_adaptive_hash_index_partitions=8
 
 # MySQL 5.5 4, >=5.6 8~16, 5.7 default = 16
 # innodb_buffer_pool_instances=4
 
 innodb_buffer_pool_size=${pool_max}M
-innodb_buffer_pool_chunk_size=${pool_chunk_size}M
+# chunk_size only in >= 5.7
+loose_innodb_buffer_pool_chunk_size=${pool_chunk_size}M
 innodb_log_file_size=${logfile_size}M
 innodb_flush_log_at_trx_commit=2
-sync_binlog=0
 innodb_flush_method=O_DIRECT
 
 # increment it only on big-box with test
@@ -54,11 +54,13 @@ innodb_thread_concurrency=8
 # innodb_io_capacity_max=1000
 
 # default is 25, high if you won't more warm db but more space usage, only avialible >=5.6 or >= percona 5.1
-innodb_buffer_pool_dump_pct=100
+loose_innodb_buffer_pool_dump_at_shutdown=1
+loose_innodb_buffer_pool_load_at_startup=1
+loose_innodb_buffer_pool_dump_pct=100
 
 # only used on 5.6, below has good default on 5.7, 5.5 don't have it
-# innodb_checksum_algorithm=crc
-# table_open_cache_instances=16
+innodb_checksum_algorithm=crc
+table_open_cache_instances=16
 
 # query_cache_type=OFF
 # query_cache_size=0
@@ -68,17 +70,28 @@ performance_schema=OFF
 master_info_repository = TABLE
 relay_log_info_repository = TABLE
 gtid_mode = on
+log_bin=${datadir}/mysqlbin
+max_binlog_size=512M
+binlog_format=ROW
+log-slave-updates
+loose_max_binlog_files=4
+# loose_binlog_space_limit=2G
 enforce_gtid_consistency = 1
 slave_skip_errors = ddl_exist_errors
 
 # compatible settings
 innodb_strict_mode = 1
-sql_mode = "STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER"
+innodb_file_per_table=1
+sql_mode = "STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION,NO_AUTO_CREATE_USER"
 character_set_server=utf8mb4
 lower_case_table_names=1
 skip_name_resolve
 # transaction_isolation = READ-COMMITTED
 explicit_defaults_for_timestamp = 1
+
+sync_binlog=0
+# unify for benchmark, 5.7 is on as default while 5.6 is off
+ssl=0
 
 EOF
 
