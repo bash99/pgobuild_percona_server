@@ -5,7 +5,10 @@ MYSQL_BASE=$1
 
 MYSQL_CLI_OPT="$MYSQL_BASE/bin/mysql -uroot --socket=$MYSQL_BASE/data/mysql.sock"
 sh -c "$MYSQL_CLI_OPT" <<EOF
-create user sbtest@localhost identified by 'sbtest12';
+drop user sbtest@localhost;
+EOF
+sh -c "$MYSQL_CLI_OPT" <<EOF
+create user sbtest@localhost identified with mysql_native_password by 'sbtest12';
 EOF
 
 SELF_PATH=$( dirname "${BASH_SOURCE[0]}" )

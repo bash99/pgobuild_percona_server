@@ -3,10 +3,14 @@
 : ${1?"Usage: $0 MYSQL_BUILD_PATH INSTALL_PREFIX"}
 MYSQL_BUILD_PATH=$1
 if [ "$2" != "" ]; then
+    INSTALL_PREFIX=$2
     PREIFX_OPT="-DCMAKE_INSTALL_PREFIX=$2 "
 fi
 
 cd $MYSQL_BUILD_PATH
+
+## deal with some absolute cmake install paths
+perl -pi -e "s{/usr/local/mysql/usr}{$INSTALL_PREFIX}g" scripts/*.cmake
 
 ## install without mysql-test(too large and no use for server package)
 cat cmake_install.cmake | perl -e "while(<>) {print unless /mysql-test/;}" > cmake.tmp

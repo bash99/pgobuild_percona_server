@@ -25,3 +25,5 @@ bash $SELF_PATH/../sysbench/train-sysbench.sh $MYSQL_BASE | tee /tmp/${MYSQL_VER
 
 bash $SELF_PATH/shutdown_normal.sh $MYSQL_BASE
 
+if [ $? -ne 0 ]; then echo "all failed! Assert: non-0 exit status detected!"; exit 1; fi
+bash $SELF_PATH/../build-opt/make_package.sh ${MYSQL_BUILD_PATH}

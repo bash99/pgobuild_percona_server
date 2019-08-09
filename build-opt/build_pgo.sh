@@ -30,6 +30,8 @@ bash $SELF_PATH/../sysbench/train-sysbench.sh $MYSQL_BASE | tee /tmp/${MYSQL_VER
 
 bash $SELF_PATH/../build-normal/shutdown_normal.sh $MYSQL_BASE
 
+#find ${MYSQL_BUILD_PATH} -name "*.gcda" | tail
+
 ### use profile
 export optflags="-march=nehalem -mtune=haswell -fprofile-use -fprofile-correction  "
 bash $SELF_PATH/../build-normal/compile.sh $MYSQL_BASE ${MYSQL_BUILD_PATH} $MYSQL_VER

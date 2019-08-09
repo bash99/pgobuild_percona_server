@@ -1,3 +1,6 @@
+# document outdated
+  need fix asap
+
 # pgobuild_percona_server
 some help scripts to build a PGO version percona_server 5.7
 

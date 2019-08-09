@@ -24,4 +24,4 @@ rm -rf lib/*.a lib/mysql/plugin/*test* lib/mysql/plugin/qa_auth_* lib/mysql/plug
 grep -rinl profile-gen . | xargs -n 64 perl -pi -e "s/--profile-generate //g"
 grep -rinl profile-use . | xargs -n 64 perl -pi -e "s/-fprofile-use -fprofile-correction //g"
 cd .. 
-tar cf - $PKGNAME | pxz -4 > $CUR_PAHT/mini_pgoed_$PKGNAME.tar.xz
+tar cf - $PKGNAME | pxz -4 > $CUR_PAHT/mini_$PKGNAME.tar.xz

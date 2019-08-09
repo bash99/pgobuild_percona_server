@@ -1,6 +1,8 @@
 #!/bin/bash
 
-datadir=$1
+: ${1?"Usage: $0 MYSQL_DATA_DIR MYSQL_VER"}
+: ${2?"Usage: $0 MYSQL_DATA_DIR MYSQL_VER"}
+MYSQL_VER=$2
 
 ### setup my.cnf, as mariadb-libs installed on previous steps, add a /etc/my.cnf.d/perf.cnf is OK
 server_id=`dd status=none bs=128 count=1 if=/dev/urandom | base64 | tr -dc '1-9' | fold -w 4 | less | head -n 1`
@@ -9,6 +11,7 @@ totmem=$(echo "$mem*1024"|bc)
 pct=75
 # pct = 40 shared host
 pool_max=$(echo "$totmem*$pct/100/1024/1024/64 * 64"|bc)
+# set to max 4800, so we can benchmark with a 10G dataset for a little io-bound workload
 pool_max=$((pool_max<4800 ? pool_max : 4800))
 logfile_size=$(echo "$pool_max/8"|bc)
 pool_chunk_size=$(($logfile_size>1024?128:$logfile_size/8))
@@ -75,14 +78,14 @@ max_binlog_size=512M
 binlog_format=ROW
 log-slave-updates
 loose_max_binlog_files=4
-# loose_binlog_space_limit=2G
+loose_binlog_space_limit=2G
 enforce_gtid_consistency = 1
 slave_skip_errors = ddl_exist_errors
 
 # compatible settings
 innodb_strict_mode = 1
 innodb_file_per_table=1
-sql_mode = "STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION,NO_AUTO_CREATE_USER"
+sql_mode = "STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO"
 character_set_server=utf8mb4
 lower_case_table_names=1
 skip_name_resolve
