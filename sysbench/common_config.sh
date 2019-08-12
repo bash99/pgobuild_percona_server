@@ -14,6 +14,6 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$MYSQL_BASE/lib/
 : ${SYSBENCH_BASE:=$MYSQL_BASE/sysbench}
 SYSBENCH_LUA_DIR=$SYSBENCH_BASE/share/sysbench/
 
-SYSBENCH_OPT="--table-size=${table_size} --tables=${table_count} --threads=${oltp_threads} --max-requests=0 --report-interval=5 --db-driver=mysql --mysql_storage_engine=${dbeng} --mysql-db=sbtest_${dbeng} --mysql-user=sbtest --mysql-password=sbtest12 --mysql-socket=$MYSQL_BASE/data/mysql.sock --mysql-ignore-errors=1062"
+SYSBENCH_OPT="--table-size=${table_size} --tables=${table_count} --threads=${oltp_threads} --max-requests=0 --report-interval=5 --db-driver=mysql --mysql_storage_engine=${dbeng} --mysql-db=sbtest_${dbeng} --mysql-user=sbtest --mysql-password=sbtest12 --mysql-socket=$MYSQL_BASE/data/mysql.sock --mysql-ignore-errors=1062,1213"
 SYSBENCH_BIN=$SYSBENCH_BASE/bin/sysbench
 

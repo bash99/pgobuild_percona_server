@@ -10,7 +10,7 @@ rm -rf ${MYSQL_DATA_PATH}
 mkdir -p ${MYSQL_DATA_PATH}
 mkdir -p $MYSQL_BASE/etc
 
-bash $SELF_PATH/init_conf.sh ${MYSQL_DATA_PATH} > $MYSQL_CNF_PATH
+bash $SELF_PATH/init_conf.sh ${MYSQL_DATA_PATH} $MYSQL_VER> $MYSQL_CNF_PATH
 
 if [ -f "$MYSQL_BASE/scripts/mysql_install_db" ]; then ## old mysql 5.6
   rm -f ~/.mysql_secret

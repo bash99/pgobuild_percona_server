@@ -2,6 +2,7 @@
 
 : ${1?"Usage: $0 MYSQL_DATA_DIR MYSQL_VER"}
 : ${2?"Usage: $0 MYSQL_DATA_DIR MYSQL_VER"}
+datadir=$1
 MYSQL_VER=$2
 
 ### setup my.cnf, as mariadb-libs installed on previous steps, add a /etc/my.cnf.d/perf.cnf is OK
@@ -76,6 +77,7 @@ gtid_mode = on
 log_bin=${datadir}/mysqlbin
 max_binlog_size=512M
 binlog_format=ROW
+binlog_row_image=minimal
 log-slave-updates
 loose_max_binlog_files=4
 loose_binlog_space_limit=2G
@@ -92,9 +94,35 @@ skip_name_resolve
 # transaction_isolation = READ-COMMITTED
 explicit_defaults_for_timestamp = 1
 
-sync_binlog=0
+sync_binlog=10000
 # unify for benchmark, 5.7 is on as default while 5.6 is off
 ssl=0
 
+### rocksdb part
+##loose-rocksdb_max_open_files=-1
+##loose-rocksdb_max_background_jobs=8
+##loose-rocksdb_max_total_wal_size=600M
+##loose-rocksdb_block_size=16384
+##loose-rocksdb_table_cache_numshardbits=6
+
+# rate limiter
+##loose-rocksdb_bytes_per_sync=16777216
+##loose-rocksdb_wal_bytes_per_sync=4194304
+#rocksdb_rate_limiter_bytes_per_sec=104857600 #100MB/s
+#
+# # triggering compaction if there are many sequential deletes
+##loose-rocksdb_compaction_sequential_deletes_count_sd=1
+##loose-rocksdb_compaction_sequential_deletes=199999
+##loose-rocksdb_compaction_sequential_deletes_window=200000
+
+##loose-rocksdb_default_cf_options="write_buffer_size=256m;target_file_size_base=32m;max_bytes_for_level_base=512m;max_write_buffer_number=4;level0_file_num_compaction_trigger=4;level0_slowdown_writes_trigger=20;level0_stop_writes_trigger=30;max_write_buffer_number=4;block_based_table_factory={cache_index_and_filter_blocks=1;filter_policy=bloomfilter:10:false;whole_key_filtering=0};level_compaction_dynamic_level_bytes=true;optimize_filters_for_hits=true;memtable_prefix_bloom_size_ratio=0.05;prefix_extractor=capped:12;compaction_pri=kMinOverlappingRatio;compression=kLZ4Compression;bottommost_compression=kLZ4Compression;compression_opts=-14:4:0"
+
+##loose-rocksdb_max_subcompactions=4
+##loose-rocksdb_compaction_readahead_size=16m
+
+##loose-rocksdb_use_direct_reads=ON
+##loose-rocksdb_use_direct_io_for_flush_and_compaction=ON
+
+##loose-rocksdb_block_cache_size=4800M
 EOF
 
