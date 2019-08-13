@@ -1,6 +1,7 @@
 #!/bin/bash
 
 SELF_PATH=$( dirname "${BASH_SOURCE[0]}" )
+SELF_PATH=`cd $SELF_PATH; pwd`
 
 export MYSQL_USER=`whoami`
 CUR_PATH=`pwd`
@@ -8,12 +9,12 @@ CUR_PATH=`pwd`
 
 BUILD_EXT="build"
 MYSQL_BUILD_PATH=${MYSQL_SOURCE_PATH}_${BUILD_EXT}
-#bash $SELF_PATH/prepare_build.sh $MYSQL_SOURCE_PATH $MYSQL_VER ${BUILD_EXT}
+bash $SELF_PATH/prepare_build.sh $MYSQL_SOURCE_PATH $MYSQL_VER ${BUILD_EXT}
 
-#bash $SELF_PATH/compile.sh $MYSQL_BASE ${MYSQL_BUILD_PATH} $MYSQL_VER
+bash $SELF_PATH/compile.sh $MYSQL_BASE ${MYSQL_BUILD_PATH} $MYSQL_VER
 if [ $? -ne 0 ]; then echo "compile failed! Assert: non-0 exit status detected!"; exit 1; fi
 
-#bash $SELF_PATH/install_mini.sh ${MYSQL_BUILD_PATH} $MYSQL_BASE
+bash $SELF_PATH/install_mini.sh ${MYSQL_BUILD_PATH} $MYSQL_BASE
 if [ $? -ne 0 ]; then echo "install failed! Assert: non-0 exit status detected!"; exit 1; fi
 
 bash $SELF_PATH/init_normal.sh $MYSQL_BASE

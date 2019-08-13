@@ -8,7 +8,7 @@ sh -c "$MYSQL_CLI_OPT" <<EOF
 drop user sbtest@localhost;
 EOF
 sh -c "$MYSQL_CLI_OPT" <<EOF
-create user sbtest@localhost identified with mysql_native_password by 'sbtest12';
+create user sbtest@localhost identified /*!80000 with mysql_native_password */by 'sbtest12';
 EOF
 
 SELF_PATH=$( dirname "${BASH_SOURCE[0]}" )

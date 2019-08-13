@@ -19,5 +19,5 @@ mv -f cmake.tmp cmake_install.cmake
 make preinstall -j `nproc`
 
 ## call camke directly as prefix don't work for cmake at install stage 
-/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 ${PREIFX_OPT} -P cmake_install.cmake
+cmake -DCMAKE_INSTALL_DO_STRIP=1 ${PREIFX_OPT} -P cmake_install.cmake
 #echo make install/strip/fast -j `nproc`
