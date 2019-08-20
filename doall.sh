@@ -3,8 +3,8 @@
 SELF_PATH=$( dirname "${BASH_SOURCE[0]}" )
 SELF_PATH=`cd $SELF_PATH; pwd`
 
-export MYSQL_VER=5.7
-export MYSQL_MINI_VER=26-29
+export MYSQL_VER=8.0
+export MYSQL_MINI_VER=15-6
 
 CUR_PATH=`pwd`
 
@@ -19,4 +19,4 @@ if [ $? -ne 0 ]; then echo "prepare requirement and mysql source failed! Assert:
 bash $SELF_PATH/build-normal/doall.sh
 if [ $? -ne 0 ]; then echo "build normal failed! Assert: non-0 exit status detected!"; exit 1; fi
 
-bash $SELF_PATH/build-opt/doall.sh
+bash $SELF_PATH/build-opt/doall.sh $MYSQL_BASE $MYSQL_SOURCE_PATH $MYSQL_VER

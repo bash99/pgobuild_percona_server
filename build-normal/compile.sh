@@ -15,9 +15,14 @@ cd $MYSQL_BUILD_PATH
 
 rm -f /tmp/${MYSQL_VER}_build
 
+verlte() {
+    printf '%s\n%s' "$1" "$2" | sort -C -V
+}
+
 case $MYSQL_VER in
 	5.7)
 	        cmake . -DBUILD_CONFIG=mysql_release -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFEATURE_SET=community \
+                   -DCMAKE_C_FLAGS="${optflags}" -DCMAKE_CXX_FLAGS="${optflags}" \
 	           -DWITH_NUMA=ON -DWITH_SYSTEMD=1 -DWITH_EMBEDDED_SERVER=OFF -DWITH_ZLIB=system \
 	           -DWITH_INNODB_MEMCACHED=1 -DWITH_SCALABILITY_METRICS=ON -DDOWNLOAD_BOOST=0 -DWITH_BOOST=../boost_1_59_0 \
 	           -DWITH_SSL=system -DWITH_MECAB=/opt/rh/rh-mysql57/root/usr/ -DENABLE_DOWNLOADS=1 -DWITH_PAM=ON ${ASAN} \
@@ -30,12 +35,13 @@ case $MYSQL_VER in
 	           -DWITH_ROCKSDB=0 -DWITH_SCALABILITY_METRICS=ON 2>&1 | tee /tmp/${MYSQL_VER}_build
                 ;;
 	8.0)
+                verlte 16 $MYSQL_MINI_VER && BOOST_VER=1_69_0 || BOOST_VER=1_68_0
                 cmake3 . -DBUILD_CONFIG=mysql_release -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFEATURE_SET=community \
                    -DWITH_NUMA=ON -DWITH_SYSTEMD=1 -DWITH_READLINE=system -DWITH_SSL=system \
                    -DCMAKE_C_FLAGS="${optflags}" -DCMAKE_CXX_FLAGS="${optflags}" \
                    -DMYSQL_MAINTAINER_MODE=OFF -DFORCE_INSOURCE_BUILD=1 -DWITH_LZ4=bundled -DWITH_ZLIB=bundled \
                    -DWITH_PROTOBUF=bundled -DWITH_RAPIDJSON=bundled -DWITH_ICU=bundled -DWITH_LIBEVENT=bundled \
-                   -DWITH_INNODB_MEMCACHED=1 -DWITH_KEYRING_VAULT=ON -DWITH_BOOST=../boost_1_69_0 -DWITH_SYSTEM_LIBS=ON \
+                   -DWITH_INNODB_MEMCACHED=1 -DWITH_KEYRING_VAULT=ON -DWITH_BOOST=../boost_${BOOST_VER} -DWITH_SYSTEM_LIBS=ON \
                    -DWITH_MECAB=/opt/rh/rh-mysql57/root/usr/ -DENABLE_DOWNLOADS=1 -DWITH_PAM=1 ${ASAN} \
                    -DWITH_ROCKSDB=1 2>&1 | tee /tmp/${MYSQL_VER}_build
                 ;;

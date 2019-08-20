@@ -7,7 +7,7 @@ MINI_VER=${MYSQL_MINI_VER:-26-29}
 MYSQL_SOURCE_PATH=ps-${MAJOR_VER}
 MYSQL_SOURCE_TARBALL=percona-server-${MAJOR_VER}.${MINI_VER}.tar.gz
 
-curl_retry_opt="--retry 5  --retry-delay 4 "
+curl_retry_opt="--retry 25  --retry-delay 15 "
 
 if [ ! -d $MYSQL_SOURCE_PATH ]; then
     curl $curl_retry_opt -L -C - https://www.percona.com/downloads/Percona-Server-${MAJOR_VER}/Percona-Server-${MAJOR_VER}.${MINI_VER}/source/tarball/percona-server-${MAJOR_VER}.${MINI_VER}.tar.gz \
@@ -21,19 +21,23 @@ if [ $? -ne 0 ]; then echo "download mysql source failed! Assert: non-0 exit sta
 # && git clone  --depth 1 https://github.com/percona/percona-server.git -b 5.7 ps-5.7 \
 # && cd ps-5.7 && git submodule init && git submodule update
 
+verlte() { 
+    printf '%s\n%s' "$1" "$2" | sort -C -V
+}
+
 case $MYSQL_VER in
         5.7)
 		BOOST_VER=1_59_0
 		;;
         8.0)
-		BOOST_VER=1_69_0
+		verlte 16 $MINI_VER && BOOST_VER=1_69_0 || BOOST_VER=1_68_0
 		;;
         *)
 		;;
 esac
 
 if [ "$BOOST_VER" != "" ]; then
-  export BOOST_DOT_VER=`echo $BOOST_VER | sed -e "s/\_/./g"`
+  BOOST_DOT_VER=`echo $BOOST_VER | sed -e "s/\_/./g"`
   if [ ! -d boost_${BOOST_VER} ]; then
     curl $curl_retry_opt -L -C - https://sourceforge.net/projects/boost/files/boost/${BOOST_DOT_VER}/boost_${BOOST_VER}.tar.bz2/download -o boost_${BOOST_VER}.tar.bz2 \
       && tar jxf boost_${BOOST_VER}.tar.bz2

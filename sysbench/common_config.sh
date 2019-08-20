@@ -1,10 +1,10 @@
 ## below is settings works for training
 ## do more plan and test before change it
-export table_size=2000000
-export table_count=16
-export oltp_threads=16
-export max_point_select_time=50
-export max_oltp_time=160
+table_size=2000000
+table_count=16
+oltp_threads=16
+max_point_select_time=50
+max_oltp_time=160
 
 : ${dbeng:=innodb}
 
