@@ -53,6 +53,8 @@ run bellow scripts to test results (assume you put pspgo-utils and binaries in s
 ```bash
 wget https://dl.ximen.bid/mini_percona-server-5.6.44-86.0-pgo-linux-x86_64.tar.xz
 wget https://www.percona.com/downloads/Percona-Server-5.6/Percona-Server-5.6.44-86.0/binary/tarball/Percona-Server-5.6.44-rel86.0-Linux.x86_64.ssl101.tar.gz
+sudo pspgo-utils/prepare/install-misc.sh
+sudo pspgo-utils/prepare/init_syslimit.sh
 bash pspgo-utils/build-normal/test_binary.sh mini_percona-server-5.6.44-86.0-pgo-linux-x86_64.tar.xz "`pwd`/local/ps-5.6"
 grep transactions /tmp/sb_test_bin_result.txt > pgo_result.txt
 rm -rf "`pwd`/local/ps-5.6"
@@ -65,7 +67,7 @@ cat pgo_result.txt normal_result.txt
 
 Binary build use 5.7.19 is running in production on about 100- servers for one and half years, no crash reported.
 
-System avg loads decrease about 14% in first week.
+System avg load decreased about 14% in first week.
 
 ## Quick Start
 
