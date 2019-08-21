@@ -2,10 +2,12 @@
 
 SELF_PATH=$( dirname "${BASH_SOURCE[0]}" )
 
-: ${1?"Usage: $0 MYSQL_TARBALl MYSQL_BASE_PATH"}
-: ${2?"Usage: $0 MYSQL_TARBALL MYSQL_BASE_PATH"}
+: ${1?"Usage: $0 MYSQL_TARBALl MYSQL_BASE_PATH MYSQL_VER"}
+: ${2?"Usage: $0 MYSQL_TARBALl MYSQL_BASE_PATH MYSQL_VER"}
+: ${3?"Usage: $0 MYSQL_TARBALl MYSQL_BASE_PATH MYSQL_VER"}
 MYSQL_TARBALL=$1
 MYSQL_BASE=$2
+export MYSQL_VER=$3
 
 if [ -d $MYSQL_BASE ]; then
     echo "MYSQL_BASE_PATH $MYSQL_BASE exists!, don't overwirte"

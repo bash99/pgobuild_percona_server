@@ -48,19 +48,39 @@ There also a seperate script named test_binary.sh can be used to test against of
 If you can not build by your self or want to try it fast, you can download binary built by me, [5.6.44-86.0](https://dl.ximen.bid/mini_percona-server-5.6.44-86.0-pgo-linux-x86_64.tar.xz), [5.7.26-29](https://dl.ximen.bid/mini_percona-server-5.7.26-29-pgo-linux-x86_64.tar.xz).
 and official binary [5.6.44](https://www.percona.com/downloads/Percona-Server-5.6/Percona-Server-5.6.44-86.0/binary/tarball/Percona-Server-5.6.44-rel86.0-Linux.x86_64.ssl101.tar.gz)
 
-run bellow scripts to test results (assume you put pspgo-utils and binaries in same directory)
+run bellow scripts to test results (assume you have sudo permisson and at least 15G disk)
 
 ```bash
-wget https://dl.ximen.bid/mini_percona-server-5.6.44-86.0-pgo-linux-x86_64.tar.xz
-wget https://www.percona.com/downloads/Percona-Server-5.6/Percona-Server-5.6.44-86.0/binary/tarball/Percona-Server-5.6.44-rel86.0-Linux.x86_64.ssl101.tar.gz
+mkdir mysql-build
+cd mysql-build
+wget -c https://dl.ximen.bid/mini_percona-server-5.6.44-86.0-pgo-linux-x86_64.tar.xz
+wget -c https://www.percona.com/downloads/Percona-Server-5.6/Percona-Server-5.6.44-86.0/binary/tarball/Percona-Server-5.6.44-rel86.0-Linux.x86_64.ssl101.tar.gz
+export SYSBENCH_BASE=`pwd`/sysbench_bin
+mkdir -p $SYSBENCH_BASE
+curl -L -q https://dl.ximen.bid/sysbench-1.17.static.tar.xz | tar -Jxf - -C $SYSBENCH_BASE --strip-components=1
+git clone https://github.com/bash99/pgobuild_percona_server.git pspgo-utils
 sudo pspgo-utils/prepare/install-misc.sh
 sudo pspgo-utils/prepare/init_syslimit.sh
-bash pspgo-utils/build-normal/test_binary.sh mini_percona-server-5.6.44-86.0-pgo-linux-x86_64.tar.xz "`pwd`/local/ps-5.6"
+export MYSQL_VER=5.6
+export MYSQL_BASE="`pwd`/local/ps-$MYSQL_VER"
+rm -rf "$MYSQL_BASE"
+bash `pwd`/pspgo-utils/build-normal/test_binary.sh mini_percona-server-5.6.44-86.0-pgo-linux-x86_64.tar.xz "$MYSQL_BASE" $MYSQL_VER
 grep transactions /tmp/sb_test_bin_result.txt > pgo_result.txt
-rm -rf "`pwd`/local/ps-5.6"
-bash pspgo-utils/build-normal/test_binary.sh Percona-Server-5.6.44-rel86.0-Linux.x86_64.ssl101.tar.gz `pwd`/local/ps-5.6
+rm -rf "$MYSQL_BASE"
+bash pspgo-utils/build-normal/test_binary.sh Percona-Server-5.6.44-rel86.0-Linux.x86_64.ssl101.tar.gz "$MYSQL_BASE" $MYSQL_VER
 grep transactions /tmp/sb_test_bin_result.txt > normal_result.txt
-cat pgo_result.txt normal_result.txt
+grep trans pgo_result.txt normal_result.txt
+```
+
+result from a aws c3large box (2c 3.75G 512M swap 16Gssd*2 as raid0)
+
+```txt
+pgo_result.txt:    transactions:                        1330627 (26608.29 per sec.)
+pgo_result.txt:    transactions:                        114073 (712.86 per sec.)
+pgo_result.txt:    transactions:                        80200  (501.13 per sec.)
+normal_result.txt:    transactions:                        905104 (18099.37 per sec.)
+normal_result.txt:    transactions:                        84038  (525.16 per sec.)
+normal_result.txt:    transactions:                        61317  (383.12 per sec.)
 ```
 
 ### Stability
