@@ -6,10 +6,11 @@ MYSQL_BASE=$1
 
 if [ "$SYSBENCH_BASE" == "" ]; then
   # rm -rf sysbench $MYSQL_BASE/sysbench && \
-  git clone --depth 1 https://github.com/akopytov/sysbench -b 1.0 sysbench
+  SYSBENCH_SRC=sysbench_1.0
+  git clone --depth 1 https://github.com/akopytov/sysbench -b 1.0 $SYSBENCH_SRC
 
   export LDFLAGS="-L$MYSQL_BASE/lib"
-  cd sysbench && git pull \
+  cd $SYSBENCH_SRC && git pull \
   && ./autogen.sh \
   && ./configure --with-mysql=$MYSQL_BASE \
   && make clean -j ${nproc} && make install -j ${nproc} prefix=$MYSQL_BASE/sysbench

@@ -3,8 +3,9 @@
 SELF_PATH=$( dirname "${BASH_SOURCE[0]}" )
 SELF_PATH=`cd $SELF_PATH; pwd`
 
-export MYSQL_VER=8.0
-export MYSQL_MINI_VER=15-6
+: ${MYSQL_VER:=8.0}
+: ${MYSQL_MINI_VER:=15-6}
+export MYSQL_VER MYSQL_MINI_VER
 
 CUR_PATH=`pwd`
 
