@@ -147,7 +147,7 @@ The PGOed package like mini_percona-server-8.0.15-6-pgo-linux-x86_64.tar.xz can 
 
 ### other build flags
 
-edit build-opt/build_pgo.sh and build-normal/compile.sh, find all optflags line, change "-march=nehalem -mtune=haswell" to your hardware requirement, the default is ok for most server hardware after 2011.
+export CPU_OPT_FLAGS="you hardware requirement", the default is "-march=nehalem -mtune=haswell", which is ok for most intel server hardware after 2011.
 
 ## Usage in Detail
 

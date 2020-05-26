@@ -3,9 +3,10 @@
 SELF_PATH=$( dirname "${BASH_SOURCE[0]}" )
 SELF_PATH=`cd $SELF_PATH; pwd`
 
+: ${CPU_OPT_FLAGS:="-march=nehalem -mtune=haswell"}
 : ${MYSQL_VER:=8.0}
 : ${MYSQL_MINI_VER:=15-6}
-export MYSQL_VER MYSQL_MINI_VER
+export MYSQL_VER MYSQL_MINI_VER CPU_OPT_FLAGS
 
 CUR_PATH=`pwd`
 

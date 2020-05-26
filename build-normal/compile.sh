@@ -9,7 +9,7 @@ MYSQL_VER=$3
 
 NPROC=$(nproc)
 MJ=$(($NPROC*3/2))
-: ${optflags:="-march=nehalem -mtune=haswell"}
+optflags="$optflags $CPU_OPT_FLAGS"
 
 cd $MYSQL_BUILD_PATH
 
@@ -33,7 +33,7 @@ case $MYSQL_VER in
 	        cmake . -DBUILD_CONFIG=mysql_release -DCMAKE_BUILD_TYPE=RelWithDebInfo -DENABLE_DTRACE=OFF -DWITH_EMBEDDED_SERVER=OFF \
 	           -DCMAKE_C_FLAGS="${optflags}" -DCMAKE_CXX_FLAGS="${optflags}" -DWITH_SSL=system -DENABLE_DOWNLOADS=1 \
 	           -DWITH_INNODB_MEMCACHED=ON -DWITH_SSL=system -DWITH_PAM=ON -DFEATURE_SET=community \
-	           -DWITH_ROCKSDB=0 -DWITH_SCALABILITY_METRICS=ON 2>&1 | -a tee /tmp/${MYSQL_VER}_build
+	           -DWITH_ROCKSDB=0 -DWITH_SCALABILITY_METRICS=ON 2>&1 | tee -a /tmp/${MYSQL_VER}_build
                 ;;
 	8.0)
                 verlte 16 $MYSQL_MINI_VER && BOOST_VER=1_69_0 || BOOST_VER=1_68_0

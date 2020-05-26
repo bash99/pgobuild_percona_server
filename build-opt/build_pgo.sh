@@ -14,7 +14,7 @@ MYSQL_BUILD_PATH=${MYSQL_SOURCE_PATH}_pgobuild
 
 bash $SELF_PATH/patch_version.sh $MYSQL_BUILD_PATH
 
-export optflags="-march=nehalem -mtune=haswell --profile-generate "
+export optflags=" $CPU_OPT_FLAGS --profile-generate "
 bash $SELF_PATH/../build-normal/compile.sh $MYSQL_BASE ${MYSQL_BUILD_PATH} $MYSQL_VER
 if [ $? -ne 0 ]; then echo "compile failed! Assert: non-0 exit status detected!"; exit 1; fi
 
@@ -32,8 +32,8 @@ bash $SELF_PATH/../build-normal/shutdown_normal.sh $MYSQL_BASE
 
 #find ${MYSQL_BUILD_PATH} -name "*.gcda" | tail
 
-### use profile
-export optflags="-march=nehalem -mtune=haswell -fprofile-use -fprofile-correction  "
+### use profile, some tokudb branch is not used, so we need -Wnoerror=missing-profile
+export optflags=" $CPU_OPT_FLAGS -fprofile-use -fprofile-correction -Wno-missing-profile"
 bash $SELF_PATH/../build-normal/compile.sh $MYSQL_BASE ${MYSQL_BUILD_PATH} $MYSQL_VER
 if [ $? -ne 0 ]; then echo "compile failed! Assert: non-0 exit status detected!"; exit 1; fi
 
