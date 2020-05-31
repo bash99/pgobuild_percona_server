@@ -5,7 +5,7 @@ SELF_PATH=$( dirname "${BASH_SOURCE[0]}" )
 : ${1?"Usage: $0 MYSQL_BUILD_PATH"}
 MYSQL_BUILD_PATH=$1
 
-CUR_PAHT=`pwd`
+CUR_PATH=`pwd`
 
 cd $MYSQL_BUILD_PATH
 
@@ -24,4 +24,5 @@ rm -rf lib/*.a lib/mysql/plugin/*test* lib/mysql/plugin/qa_auth_* lib/mysql/plug
 grep -rinl profile-gen . | xargs -n 64 perl -pi -e "s/--profile-generate //g"
 grep -rinl profile-use . | xargs -n 64 perl -pi -e "s/-fprofile-use -fprofile-correction //g"
 cd .. 
-tar cf - $PKGNAME | pxz -4 > $CUR_PAHT/mini_$PKGNAME.tar.xz
+#tar cf - $PKGNAME | pxz -4 > $CUR_PATH/mini_$PKGNAME.tar.xz
+tar cf - $PKGNAME | zstd -T0 -6 > $CUR_PATH/mini_$PKGNAME.tar.zst

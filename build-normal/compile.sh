@@ -46,9 +46,10 @@ case $MYSQL_VER in
                    -DCMAKE_C_FLAGS="${optflags}" -DCMAKE_CXX_FLAGS="${optflags}" \
                    -DMYSQL_MAINTAINER_MODE=OFF -DFORCE_INSOURCE_BUILD=1 -DWITH_LZ4=bundled -DWITH_ZLIB=bundled \
                    -DWITH_PROTOBUF=bundled -DWITH_RAPIDJSON=bundled -DWITH_ICU=bundled -DWITH_LIBEVENT=bundled \
-                   -DWITH_INNODB_MEMCACHED=1 -DWITH_KEYRING_VAULT=ON -DWITH_BOOST=../boost_cur -DDOWNLOAD_BOOST=ON -DWITH_SYSTEM_LIBS=ON \
+                   -DWITH_INNODB_MEMCACHED=1 -DWITH_BOOST=../boost_cur -DDOWNLOAD_BOOST=ON -DWITH_SYSTEM_LIBS=ON \
                    -DWITH_MECAB=$MECAB_INC -DENABLE_DOWNLOADS=1 -DWITH_PAM=1 -DWITH_ZSTD=bundled ${ASAN} \
-                   -DWITH_ROCKSDB=1 2>&1 | tee -a /tmp/${MYSQL_VER}_build
+                   -DWITH_ROCKSDB=0 -DWITH_TOKUDB=0 -DWITH_KEYRING_VAULT=0 2>&1 | tee -a /tmp/${MYSQL_VER}_build
+                cmake3 build -DCMAKE_INSTALL_PREFIX=$MYSQL_BASE
                 ;;
         *)
 		echo "unsupport percona server version! don't know how to cmake"
