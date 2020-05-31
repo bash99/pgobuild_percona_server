@@ -29,9 +29,6 @@ case $MYSQL_VER in
         5.7)
 		BOOST_VER=1_59_0
 		;;
-        8.0)
-		verlte 16 $MINI_VER && BOOST_VER=1_69_0 || BOOST_VER=1_68_0
-		;;
         *)
 		;;
 esac

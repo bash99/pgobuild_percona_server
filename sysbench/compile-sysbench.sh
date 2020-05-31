@@ -13,7 +13,12 @@ if [ "$SYSBENCH_BASE" == "" ]; then
   cd $SYSBENCH_SRC && git pull \
   && ./autogen.sh \
   && ./configure --with-mysql=$MYSQL_BASE \
-  && make clean -j ${nproc} && make install -j ${nproc} prefix=$MYSQL_BASE/sysbench
+  && make clean \
+  && perl -pi.bak -e "s/-lperconaserverclient/-lperconaserverclient -lstdc++/" Makefile src/Makefile \
+  && mv $MYSQL_BASE/lib/libperconaserverclient.so $MYSQL_BASE/lib/libperconaserverclient.soso \
+  && make -j ${nproc} \
+  && mv $MYSQL_BASE/lib/libperconaserverclient.soso $MYSQL_BASE/lib/libperconaserverclient.so \
+  && make install -j ${nproc} prefix=$MYSQL_BASE/sysbench
 else
   if [ -d $SYSBENCH_BASE ]; then
     echo "SYSBENCH exists, don't download and compile"

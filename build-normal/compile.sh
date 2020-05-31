@@ -11,6 +11,10 @@ NPROC=$(nproc)
 MJ=$(($NPROC*3/2))
 optflags="$optflags $CPU_OPT_FLAGS"
 
+[[ -f /opt/rh/rh-mysql57/root/usr/include/mecab.h ]] && MECAB_INC=/opt/rh/rh-mysql57/root/usr
+[[ -f /opt/rh/rh-mysql80/root/usr/include/mecab.h ]] && MECAB_INC=/opt/rh/rh-mysql80/root/usr
+[[ -f /usr/include/mecab.h ]] && MECAB_INC=/usr
+
 cd $MYSQL_BUILD_PATH
 
 rm -f /tmp/${MYSQL_VER}_build
@@ -26,7 +30,7 @@ case $MYSQL_VER in
                    -DCMAKE_C_FLAGS="${optflags}" -DCMAKE_CXX_FLAGS="${optflags}" \
 	           -DWITH_NUMA=ON -DWITH_SYSTEMD=1 -DWITH_EMBEDDED_SERVER=OFF -DWITH_ZLIB=system \
 	           -DWITH_INNODB_MEMCACHED=1 -DWITH_SCALABILITY_METRICS=ON -DDOWNLOAD_BOOST=0 -DWITH_BOOST=../boost_1_59_0 \
-	           -DWITH_SSL=system -DWITH_MECAB=/opt/rh/rh-mysql57/root/usr/ -DENABLE_DOWNLOADS=1 -DWITH_PAM=ON ${ASAN} \
+	           -DWITH_SSL=system -DWITH_MECAB=$MECAB_INC -DENABLE_DOWNLOADS=1 -DWITH_PAM=ON ${ASAN} \
 	           -DWITH_TOKUDB=1 -DWITH_ROCKSDB=1 2>&1 | tee -a /tmp/${MYSQL_VER}_build
                 ;;
 	5.6)
@@ -42,8 +46,8 @@ case $MYSQL_VER in
                    -DCMAKE_C_FLAGS="${optflags}" -DCMAKE_CXX_FLAGS="${optflags}" \
                    -DMYSQL_MAINTAINER_MODE=OFF -DFORCE_INSOURCE_BUILD=1 -DWITH_LZ4=bundled -DWITH_ZLIB=bundled \
                    -DWITH_PROTOBUF=bundled -DWITH_RAPIDJSON=bundled -DWITH_ICU=bundled -DWITH_LIBEVENT=bundled \
-                   -DWITH_INNODB_MEMCACHED=1 -DWITH_KEYRING_VAULT=ON -DWITH_BOOST=../boost_${BOOST_VER} -DWITH_SYSTEM_LIBS=ON \
-                   -DWITH_MECAB=/opt/rh/rh-mysql57/root/usr/ -DENABLE_DOWNLOADS=1 -DWITH_PAM=1 ${ASAN} \
+                   -DWITH_INNODB_MEMCACHED=1 -DWITH_KEYRING_VAULT=ON -DWITH_BOOST=../boost_cur -DDOWNLOAD_BOOST=ON -DWITH_SYSTEM_LIBS=ON \
+                   -DWITH_MECAB=$MECAB_INC -DENABLE_DOWNLOADS=1 -DWITH_PAM=1 -DWITH_ZSTD=bundled ${ASAN} \
                    -DWITH_ROCKSDB=1 2>&1 | tee -a /tmp/${MYSQL_VER}_build
                 ;;
         *)
@@ -51,7 +55,6 @@ case $MYSQL_VER in
 		exit 1
 		;;
 esac
-
 if [ $? -ne 0 ]; then echo "cmake config failed! Assert: non-0 exit status detected!"; exit 1; fi
 
 make VERBOSE=1 -j$MJ 2>&1 | tee -a /tmp/${MYSQL_VER}_build
