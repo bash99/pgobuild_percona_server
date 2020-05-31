@@ -49,7 +49,7 @@ case $MYSQL_VER in
                    -DWITH_INNODB_MEMCACHED=1 -DWITH_BOOST=../boost_cur -DDOWNLOAD_BOOST=ON -DWITH_SYSTEM_LIBS=ON \
                    -DWITH_MECAB=$MECAB_INC -DENABLE_DOWNLOADS=1 -DWITH_PAM=1 -DWITH_ZSTD=bundled ${ASAN} \
                    -DWITH_ROCKSDB=0 -DWITH_TOKUDB=0 -DWITH_KEYRING_VAULT=0 2>&1 | tee -a /tmp/${MYSQL_VER}_build
-                cmake3 build -DCMAKE_INSTALL_PREFIX=$MYSQL_BASE
+                cmake3 build -DCMAKE_INSTALL_PREFIX=$MYSQL_BASE .
                 ;;
         *)
 		echo "unsupport percona server version! don't know how to cmake"
