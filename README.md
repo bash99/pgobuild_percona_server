@@ -21,8 +21,8 @@ So I try this on percona server, use sysbench oltp as the workload and get good 
 
 ## Benchmark
 
-It got about 20~40% improvement on oltp benchmarks (read_only or read_write).
-update: maybe more improvement on 8.0 with link time optimization (gcc -flto), perhaps another 5~15%
+It got about 20-40% improvement on oltp benchmarks (read_only or read_write).
+update: more improvement on 8.0 with link time optimization (gcc -flto), another 5-20%
 
 | TPS | 5.6	| 5.6_PGO	| improvement	| 5.7	| 5.7_PGO	| improvement	|8.0	| 8.0_PGO	| improvement |
 | ----------| ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- |
