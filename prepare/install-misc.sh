@@ -9,7 +9,7 @@ GNUPGHOME=~/gnupg && mkdir -p ~/gnupg && chmod 600 ~/gnupg \
 && rpm --import ${GNUPGHOME}/RPM-GPG-KEY-* \
 && yum -y install -y jemalloc pxz numactl numactl-devel rh-mysql57-mecab-devel bzip2 cmake3 libaio-devel \
       ncurses-devel readline-devel libcurl-devel pam-devel bison-devel bison tmux bc patch \
-      openssl-devel re2-devel libtirpc-devel \
+      openssl-devel re2-devel libtirpc-devel zip zstd perl-Data-Dumper \
 && alternatives --install /usr/local/bin/cmake cmake /usr/bin/cmake3 20 \
 --slave /usr/local/bin/ctest ctest /usr/bin/ctest3 \
 --slave /usr/local/bin/cpack cpack /usr/bin/cpack3 \

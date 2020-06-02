@@ -20,6 +20,7 @@ bash $SELF_PATH/../build-normal/install_mini.sh ${MYSQL_BUILD_PATH} $PREFIX_DIR
 
 cd $PREFIX_DIR
 
+## comment out line below for test and static libary
 rm -rf lib/*.a lib/mysql/plugin/*test* lib/mysql/plugin/qa_auth_* lib/mysql/plugin/*example* mysql-test
 grep -rinl profile-gen . | xargs -n 64 perl -pi -e "s/--profile-generate //g"
 grep -rinl profile-use . | xargs -n 64 perl -pi -e "s/-fprofile-use -fprofile-correction //g"
