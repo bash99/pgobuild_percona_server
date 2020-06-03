@@ -13,6 +13,7 @@ bash $SELF_PATH/prepare_build.sh $MYSQL_SOURCE_PATH $MYSQL_VER ${BUILD_EXT}
 
 bash $SELF_PATH/compile.sh $MYSQL_BASE ${MYSQL_BUILD_PATH} $MYSQL_VER
 if [ $? -ne 0 ]; then echo "compile failed! Assert: non-0 exit status detected!"; exit 1; fi
+( head -1 /tmp/${MYSQL_VER}_build && tail -1 /tmp/${MYSQL_VER}_build ) > /tmp/${MYSQL_VER}_normal_compile_time.txt
 
 bash $SELF_PATH/install_mini.sh ${MYSQL_BUILD_PATH} $MYSQL_BASE
 if [ $? -ne 0 ]; then echo "install failed! Assert: non-0 exit status detected!"; exit 1; fi

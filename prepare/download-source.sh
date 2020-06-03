@@ -1,17 +1,28 @@
 #!/bin/bash
 
-## mysql VERSION 5.6 44-86.0  5.7 26-29 8.0 15-6
+## mysql VERSION 5.6 44-86.0  5.7 26-29 8.0 15-6 remote url is like
 #https://www.percona.com/downloads/Percona-Server-8.0/Percona-Server-8.0.15-6/source/tarball/percona-server-8.0.15-6.tar.gz
 MAJOR_VER=${MYSQL_VER:-5.7}
-MINI_VER=${MYSQL_MINI_VER:-26-29}
+MINI_VER=${MYSQL_MINI_VER:-30-33}
 MYSQL_SOURCE_PATH=ps-${MAJOR_VER}
 MYSQL_SOURCE_TARBALL=percona-server-${MAJOR_VER}.${MINI_VER}.tar.gz
+MYSQL_SOURCE_TARBALL_URL=https://www.percona.com/downloads/Percona-Server-${MAJOR_VER}/Percona-Server-${MAJOR_VER}.${MINI_VER}/source/tarball/percona-server-${MAJOR_VER}.${MINI_VER}.tar.gz
 
-curl_retry_opt="--retry 25  --retry-delay 15 "
+safe_curl_download() {
+	local url=$1
+	local file=$2
+	if [[ -f $file ]]; then
+		local local_size=$(ls -l $file | cut -d ' ' -f 5)
+		local remote_size=$(https_proxy="" curl -Is $url | grep -i Content-Length | sed -e "s/\r//" | awk '{print $2}')
+
+		[[ "$remote_size" == "$local_size" ]] && echo "no need to download" && return
+	fi
+
+	export ec=18; while [ $ec -ne 0 ]; do curl -L -C - $url -o $file; export ec=$?; done
+}
 
 if [ ! -d $MYSQL_SOURCE_PATH ]; then
-    curl $curl_retry_opt -L -C - https://www.percona.com/downloads/Percona-Server-${MAJOR_VER}/Percona-Server-${MAJOR_VER}.${MINI_VER}/source/tarball/percona-server-${MAJOR_VER}.${MINI_VER}.tar.gz \
-        -o $MYSQL_SOURCE_TARBALL && \
+    safe_curl_download $MYSQL_SOURCE_TARBALL_URL $MYSQL_SOURCE_TARBALL && \
         mkdir -p $MYSQL_SOURCE_PATH && tar -xf $MYSQL_SOURCE_TARBALL \
         -C $MYSQL_SOURCE_PATH --strip-components=1
 fi
