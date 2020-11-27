@@ -22,7 +22,10 @@ if [ $? -ne 0 ]; then echo "sysbench compile failed! Assert: non-0 exit status d
 export MYSQL_USER=`whoami`
 bash $SELF_PATH/init_normal.sh $MYSQL_BASE
 
+sleep 15
+
 bash $SELF_PATH/start_normal.sh $MYSQL_BASE
+sleep 5
 
 bash $SELF_PATH/../sysbench/init-sysbench.sh $MYSQL_BASE
 

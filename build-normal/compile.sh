@@ -52,6 +52,10 @@ case $MYSQL_VER in
                 ## still some bug when direct make install, systemd require write to /usr/local/mysql, 
                 ## which ignore INSTALL_PREFIX, need run command below to workaroud
                 cmake3 build -DCMAKE_INSTALL_PREFIX=$MYSQL_BASE .
+                ## 8.0's flto require much memory, so MJ = total_memory_inGB / 4
+                MEM_K=$(free|grep Mem|awk '{print$2}')
+		MEM_G=$(echo "($MEM_K+768*1024)/1024/1024"|bc)
+		MJ=$(echo "$MEM_G/4"|bc)
                 ;;
         *)
 		echo "unsupport percona server version! don't know how to cmake"

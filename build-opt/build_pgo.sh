@@ -26,11 +26,15 @@ bash $SELF_PATH/../build-normal/start_normal.sh $MYSQL_BASE
 sleep 60
 
 ### generate profile
+bash $SELF_PATH/../sysbench/compile-sysbench.sh $MYSQL_BASE
+bash $SELF_PATH/../sysbench/init-sysbench.sh $MYSQL_BASE
 bash $SELF_PATH/../sysbench/train-sysbench.sh $MYSQL_BASE | tee /tmp/${MYSQL_VER}_genprofile.txt
 
 bash $SELF_PATH/../build-normal/shutdown_normal.sh $MYSQL_BASE
 
 #find ${MYSQL_BUILD_PATH} -name "*.gcda" | tail
+
+#exit 1
 
 ### use profile, some tokudb branch is not used, so we need -Wnoerror=missing-profile
 export optflags=" $CPU_OPT_FLAGS -fprofile-use -fprofile-correction -Wno-missing-profile"
