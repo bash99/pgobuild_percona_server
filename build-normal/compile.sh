@@ -40,7 +40,7 @@ case $MYSQL_VER in
 	           -DWITH_ROCKSDB=0 -DWITH_SCALABILITY_METRICS=ON 2>&1 | tee -a /tmp/${MYSQL_VER}_build
                 ;;
 	8.0)
-                verlte 16 $MYSQL_MINI_VER && BOOST_VER=1_69_0 || BOOST_VER=1_68_0
+                [[ -z $ORIGIN_MYSQL ]] && OTHER_ENG="" || OTHER_ENG="-DWITH_ROCKSDB=1 -DWITH_TOKUDB=1"
                 cmake3 . -DBUILD_CONFIG=mysql_release -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFEATURE_SET=community \
                    -DWITH_NUMA=ON -DWITH_SYSTEMD=1 -DWITH_READLINE=system -DWITH_SSL=system \
                    -DCMAKE_C_FLAGS="${optflags}" -DCMAKE_CXX_FLAGS="${optflags}" \
@@ -48,7 +48,8 @@ case $MYSQL_VER in
                    -DWITH_PROTOBUF=bundled -DWITH_RAPIDJSON=bundled -DWITH_ICU=bundled -DWITH_LIBEVENT=bundled \
                    -DWITH_INNODB_MEMCACHED=1 -DWITH_BOOST=../boost_cur -DDOWNLOAD_BOOST=ON -DWITH_SYSTEM_LIBS=ON \
                    -DWITH_MECAB=$MECAB_INC -DENABLE_DOWNLOADS=1 -DWITH_PAM=1 -DWITH_ZSTD=bundled ${ASAN} \
-                   -DWITH_ROCKSDB=1 -DWITH_TOKUDB=1 -DWITH_KEYRING_VAULT=1 -DWITH_LTO=1 2>&1 | tee -a /tmp/${MYSQL_VER}_build
+                   ${OTHER_ENG} ${PGO_OPT} \
+		   -DWITH_KEYRING_VAULT=1 -DWITH_LTO=1 2>&1 | tee -a /tmp/${MYSQL_VER}_build
                 ## still some bug when direct make install, systemd require write to /usr/local/mysql, 
                 ## which ignore INSTALL_PREFIX, need run command below to workaroud
                 cmake3 build -DCMAKE_INSTALL_PREFIX=$MYSQL_BASE .

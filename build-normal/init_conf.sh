@@ -4,6 +4,7 @@
 : ${2?"Usage: $0 MYSQL_DATA_DIR MYSQL_VER"}
 datadir=$1
 MYSQL_VER=$2
+basedir=$3
 
 ### setup my.cnf, as mariadb-libs installed on previous steps, add a /etc/my.cnf.d/perf.cnf is OK
 server_id=`dd status=none bs=128 count=1 if=/dev/urandom | base64 | tr -dc '1-9' | fold -w 4 | less | head -n 1`
@@ -30,6 +31,7 @@ socket=${datadir}/mysql.sock
 [mysqld]
 server_id=${server_id}
 datadir=$datadir
+plugin-dir=$basedir/lib/plugin
 socket=${datadir}/mysql.sock
 log-error=${datadir}/mysql.err.log
 pid-file=${datadir}/mysql.pid
