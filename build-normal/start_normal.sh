@@ -16,5 +16,5 @@ export LD_PRELOAD='/usr/lib64/libjemalloc.so.1' MALLOC_CONF='lg_dirty_mult:-1'
 sh -c "numactl --interleave=all $MYSQLD_WITHOPT" &
 # [[ ! -f $MYSQL_LOG ]] && sleep 1
 # ( tail -f -n0 $MYSQL_LOG & ) | grep -q "ready for connections"
-( tail -F $MYSQL_LOG & ) | grep -q "ready for connections"
+( tail -F -n0 $MYSQL_LOG & ) | grep -q "ready for connections"
 tail $MYSQL_LOG

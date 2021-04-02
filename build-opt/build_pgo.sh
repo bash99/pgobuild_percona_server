@@ -14,9 +14,12 @@ MYSQL_BUILD_PATH=${MYSQL_SOURCE_PATH}_pgobuild
 
 bash $SELF_PATH/patch_version.sh $MYSQL_BUILD_PATH
 
-export optflags=" $CPU_OPT_FLAGS "  PGO_OPT=" -DFPROFILE_GENERATE=ON"
+[[ "$MYSQL_VER" == "8.0" ]] || export optflags=" $CPU_OPT_FLAGS --profile-generate "
+## 8.0 has cmake options to enable pgo
+[[ "$MYSQL_VER" == "8.0" ]] && export optflags=" $CPU_OPT_FLAGS" PGO_OPT=" -DFPROFILE_GENERATE=ON"
 bash $SELF_PATH/../build-normal/compile.sh $MYSQL_BASE ${MYSQL_BUILD_PATH} $MYSQL_VER
 if [ $? -ne 0 ]; then echo "compile failed! Assert: non-0 exit status detected!"; exit 1; fi
+( head -1 /tmp/${MYSQL_VER}_build && tail -1 /tmp/${MYSQL_VER}_build ) > /tmp/${MYSQL_VER}_profile-gen_compile_time.txt
 
 bash $SELF_PATH/../build-normal/install_mini.sh ${MYSQL_BUILD_PATH} $MYSQL_BASE
 if [ $? -ne 0 ]; then echo "install failed! Assert: non-0 exit status detected!"; exit 1; fi
@@ -26,7 +29,7 @@ if [ $? -ne 0 ]; then echo "install failed! Assert: non-0 exit status detected!"
 ##if [ $? -ne 0 ]; then echo "install failed! Assert: non-0 exit status detected!"; exit 1; fi
 
 bash $SELF_PATH/../build-normal/start_normal.sh $MYSQL_BASE
-#### waiting buffer pool load
+### waiting buffer pool load
 sleep 60
 
 ### generate profile
@@ -46,9 +49,13 @@ bash $SELF_PATH/../build-normal/shutdown_normal.sh $MYSQL_BASE
 bash $SELF_PATH/../build-normal/prepare_build.sh $MYSQL_SOURCE_PATH $MYSQL_VER "pgobuild"
 
 ### use profile, some tokudb branch is not used, so we need -Wnoerror=missing-profile
-export optflags=" $CPU_OPT_FLAGS -Wno-missing-profile"   PGO_OPT=" -DFPROFILE_USE=ON"
+[[ "$MYSQL_VER" == "8.0" ]] || export optflags=" $CPU_OPT_FLAGS -fprofile-use -fprofile-correction -Wno-missing-profile"
+## 8.0 has cmake options to enable pgo
+[[ "$MYSQL_VER" == "8.0" ]] && export optflags=" $CPU_OPT_FLAGS -Wno-missing-profile" PGO_OPT="-DFPROFILE_USE=ON -DFPROFILE_GENERATE=OFF"
+
 bash $SELF_PATH/../build-normal/compile.sh $MYSQL_BASE ${MYSQL_BUILD_PATH} $MYSQL_VER
 if [ $? -ne 0 ]; then echo "compile failed! Assert: non-0 exit status detected!"; exit 1; fi
+( head -1 /tmp/${MYSQL_VER}_build && tail -1 /tmp/${MYSQL_VER}_build ) > /tmp/${MYSQL_VER}_profile-use_compile_time.txt
 
 bash $SELF_PATH/../build-normal/install_mini.sh ${MYSQL_BUILD_PATH} $MYSQL_BASE
 if [ $? -ne 0 ]; then echo "install failed! Assert: non-0 exit status detected!"; exit 1; fi

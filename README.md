@@ -21,7 +21,8 @@ So I try this on percona server, use sysbench oltp as the workload and get good 
 
 ## Benchmark
 
-It got about 20~40% improvement on oltp benchmarks (read_only or read_write).
+It got about 20-40% improvement on oltp benchmarks (read_only or read_write).
+update: more improvement on 8.0 with link time optimization (gcc -flto), another 5-20%
 
 | TPS | 5.6	| 5.6_PGO	| improvement	| 5.7	| 5.7_PGO	| improvement	|8.0	| 8.0_PGO	| improvement |
 | ----------| ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- |
@@ -45,7 +46,7 @@ There also a seperate script named test_binary.sh can be used to test against of
 
 ### quick test by your self
 
-If you can not build by your self or want to try it fast, you can download binary built by me, [5.6.44-86.0](https://dl.ximen.bid/mini_percona-server-5.6.44-86.0-pgo-linux-x86_64.tar.xz), [5.7.26-29](https://dl.ximen.bid/mini_percona-server-5.7.26-29-pgo-linux-x86_64.tar.xz).
+If you can not build by your self or want to try it fast, you can download binary built by me, [5.6.44-86.0](https://dl.ximen.bid/pgoed_percona-server/mini_percona-server-5.6.48-86.0-pgo-linux-x86_64.tar.xz), [5.7.26-29](https://dl.ximen.bid/pgoed_percona-server/mini_percona-server-5.7.26-29-pgo-linux-x86_64.tar.xz).
 and official binary [5.6.44](https://www.percona.com/downloads/Percona-Server-5.6/Percona-Server-5.6.44-86.0/binary/tarball/Percona-Server-5.6.44-rel86.0-Linux.x86_64.ssl101.tar.gz)
 
 run bellow scripts to test results (assume you have sudo permisson and at least 15G disk)
@@ -53,12 +54,13 @@ run bellow scripts to test results (assume you have sudo permisson and at least 
 ```bash
 mkdir mysql-build
 cd mysql-build
-wget -c https://dl.ximen.bid/mini_percona-server-5.6.44-86.0-pgo-linux-x86_64.tar.xz
+wget -c https://dl.ximen.bid/pgoed_percona-server/mini_percona-server-5.6.44-86.0-pgo-linux-x86_64.tar.xz
 wget -c https://www.percona.com/downloads/Percona-Server-5.6/Percona-Server-5.6.44-86.0/binary/tarball/Percona-Server-5.6.44-rel86.0-Linux.x86_64.ssl101.tar.gz
 export SYSBENCH_BASE=`pwd`/sysbench_bin
 mkdir -p $SYSBENCH_BASE
-curl -L -q https://dl.ximen.bid/sysbench-1.17.static.tar.xz | tar -Jxf - -C $SYSBENCH_BASE --strip-components=1
+curl -L -q https://dl.ximen.bid/pgoed_percona-server/sysbench-1.17.static.tar.xz | tar -Jxf - -C $SYSBENCH_BASE --strip-components=1
 git clone https://github.com/bash99/pgobuild_percona_server.git pspgo-utils
+## make sure you has required rpm installed
 sudo pspgo-utils/prepare/install-misc.sh
 sudo pspgo-utils/prepare/init_syslimit.sh
 export MYSQL_VER=5.6
@@ -93,7 +95,7 @@ System avg load decreased about 14% in first week.
 
 ### requirement
 
-At least 4C/8G vm with 70G storage is need for build PGOed Percona Server 8.0, for 5.6 maybe 25G is enough, SSD is recommend for fast compiling and stable oltp-write result.
+At least 4C/16G vm with 100G storage is need for build PGOed Percona Server 8.0 (with 30G for /tmp is required for compile with -flto flags), for 5.6 maybe 2c/4G 25G is enough (without LTO), SSD is recommend for fast compiling and stable oltp-write result.
 
 CentOS7 should be used (as percona official docker image use it).
 
@@ -111,22 +113,20 @@ git clone https://github.com/bash99/pgobuild_percona_server.git pspgo-utils
 
 ### set build version
 
-edit pspgo-utils/doall.sh, set version you want build. You can found right version number from [Percona Server Download](https://www.percona.com/downloads/Percona-Server-LATEST/), you can also try [5.6](https://www.percona.com/downloads/Percona-Server-5.6/LATEST/), [5.7](https://www.percona.com/downloads/Percona-Server-5.7/LATEST/).
+export env to set version you want build. You can found right version number from [Percona Server Download](https://www.percona.com/downloads/Percona-Server-LATEST/), you can also try [5.6](https://www.percona.com/downloads/Percona-Server-5.6/LATEST/), [5.7](https://www.percona.com/downloads/Percona-Server-5.7/LATEST/).
 
-```doall.sh
-...
+```sh
 export MYSQL_VER=8.0
-export MYSQL_MINI_VER=16-7
-...
+export MYSQL_MINI_VER=19-10
 ```
 
 ### do it in one step
 
 ```bash
-bash pspgo-utils/doall.sh
+bash pspgo-utils/run.sh -idnp
 ```
 
-Waiting it complete, you can have a dinner while it running build.
+Waiting it complete, you can have a dinner while it running build; it took 4 hour in a 8c 16G VM for 8.0 with flto, need 1 hour for 5.6.
 
 you 'll found a benchmark result file like 8.0_pgo_result.txt in current dir, and two minified package(with mysql-test and debug-symbols striped) like mini_percona-server-8.0.15-6-pgo-linux-x86_64.tar.xz and mini_percona-server-8.0.15-6-linux-x86_64.tar.xz
 
@@ -143,11 +143,11 @@ please check 8.0_pgo_result.txt content to make sure PGO is worked. a success bu
 
 ### use the package
 
-The PGOed package like mini_percona-server-8.0.15-6-pgo-linux-x86_64.tar.xz can be used as a binary tarball to install mysql-server, the same as [official instruction](https://www.percona.com/doc/percona-server/8.0/installation.html#installing-percona-server-from-a-binary-tarball).
+The PGOed package like mini_percona-server-8.0.19-10-pgo-linux-x86_64.tar.xz can be used as a binary tarball to install mysql-server, the same as [official instruction](https://www.percona.com/doc/percona-server/8.0/installation.html#installing-percona-server-from-a-binary-tarball).
+Note it's packaged without big mysql-test directory, if you need it or want make some test, change build-normal/install_mini.sh and build-opt/make_package.sh
 
 ### other build flags
-
-export CPU_OPT_FLAGS="you hardware requirement", the default is "-march=nehalem -mtune=haswell", which is ok for most intel server hardware after 2011.
+export CPU_OPT_FLAGS="you hardware requirement", the default is "-march=nehalem -mtune=haswell", which is ok for most intel server hardware after 2011, also try on AMD zen1 cpu on aws m5a.large, which still show good benchmark result. But this nehalem flags is not test with AMD cpu on production.
 
 ## Usage in Detail
 
@@ -155,26 +155,27 @@ export CPU_OPT_FLAGS="you hardware requirement", the default is "-march=nehalem 
 
 Scripts for set-up build enverionment is in [prepare/](prepare/).
 
-install-devtoolset.sh is install devtoolset-7-gcc-c++ so we can use gcc 7
+```bash pspgo-utils/run.sh -i``` do things below: 
+* install-devtoolset.sh is install devtoolset-9-gcc-c++ so we can use gcc 9
+* install-misc.sh is install devel libaries and cmake3
+* init_syslimit.sh set file and memorylock limits for mysql/current user
+* scripts above is hard-coded to CentOS 7, if you want use this script on debian, you need custom it for your needs. Maybe I'll release a debian 10/centos 7 version with ansible playbook.
 
-install-misc.sh is install devel libaries and cmake
-
-scripts above is hard-coded to CentOS 7, if you want use this script on debian, you need custom it for your needs.
-
-download-source.sh is downloading mysql and required boost libary source.
+```bash pspgo-utils/run.sh -d``` do things below: 
+* download-source.sh is downloading mysql [ and required boost libary source ].
 
 ### Build Normal Binary
 
 Scripts for normal build and some simple control is in [build-normal/](build-normal/).
 
-init_conf.sh will generate a sample config for benchmark, which use tips from [17 KEY MYSQL CONFIG FILE SETTINGS (MYSQL 5.7 PROOF)](http://www.speedemy.com/17-key-mysql-config-file-settings-mysql-5-7-proof/), other key config for more real workload simulating is
-
-```my.cnf
-log_bin
-character_set_server=utf8mb4
-```
-
-compile.sh is do actual compile.
+```bash pspgo-utils/run.sh -n``` do things below: 
+* init_conf.sh will generate a sample config for benchmark, which use tips from [17 KEY MYSQL CONFIG FILE SETTINGS (MYSQL 5.7 PROOF)](http://www.speedemy.com/17-key-mysql-config-file-settings-mysql-5-7-proof/)
+* other key config for more real workload simulating is
+    ```my.cnf
+    log_bin
+    character_set_server=utf8mb4
+    ```
+* compile.sh is do actual compile.
 
 You can check [doall.sh](build-normal/doall.sh) for all steps
 
@@ -196,6 +197,11 @@ Scripts for Sysbench is in [sysbench/](sysbench/).
 
 It contains scripts which download sysbench branch 1.0 from github and compile against current installed mysql, and do sysbench init and benchmark.
 
+You can also use a pre-build sysbench binary which static linked againest libmysql.a to avoid this. (see scripts above)
+set SYSBENCH_BASE to pre-build sysbench dir.
+
 ## CopyRight
 
-[GPL v2|V3](https://en.wikipedia.org/wiki/GNU_General_Public_License)
+This utils is under [GPL v2|V3](https://en.wikipedia.org/wiki/GNU_General_Public_License)
+
+MySQL and Percona Server is on their own License like Copyright (c) 2000, 2020, Oracle and/or its affiliates.
