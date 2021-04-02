@@ -128,7 +128,7 @@ bash pspgo-utils/doall.sh
 
 Waiting it complete, you can have a dinner while it running build.
 
-you 'll found a benchmark result file like 8.0_pgo_result.txt in current dir, and two minified package(remove mysql-test and striped debug-symbols) like mini_percona-server-8.0.15-6-pgo-linux-x86_64.tar.xz and mini_percona-server-8.0.15-6-linux-x86_64.tar.xz
+you 'll found a benchmark result file like 8.0_pgo_result.txt in current dir, and two minified package(with mysql-test and debug-symbols striped) like mini_percona-server-8.0.15-6-pgo-linux-x86_64.tar.xz and mini_percona-server-8.0.15-6-linux-x86_64.tar.xz
 
 please check 8.0_pgo_result.txt content to make sure PGO is worked. a success build should show good improvement in it like below
 
