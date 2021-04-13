@@ -19,9 +19,12 @@ logfile_size=$(echo "$pool_max/8"|bc)
 pool_chunk_size=$(($logfile_size>1024?128:$logfile_size/8))
 logfile_size=$(($logfile_size<2048?$logfile_size:2048))
 
+JEMALLOC="/usr/lib64/libjemalloc.so.1"
+[[ -f /usr/lib/x86_64-linux-gnu/libjemalloc.so ]] && JEMALLOC=/usr/lib/x86_64-linux-gnu/libjemalloc.so
+
 cat <<EOF
 [mysqld_safe]
-malloc-lib=/usr/lib64/libjemalloc.so.1
+malloc-lib=$JEMALLOC
 datadir=$datadir
 socket=${datadir}/mysql.sock
 

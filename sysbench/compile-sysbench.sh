@@ -9,17 +9,20 @@ if [ "$SYSBENCH_BASE" == "" ]; then
   SYSBENCH_SRC=sysbench_1.0
   git clone --depth 1 https://github.com/akopytov/sysbench -b 1.0 $SYSBENCH_SRC
 
-  export LDFLAGS="-L$MYSQL_BASE/lib"
+  export LDFLAGS="-L$MYSQL_BASE/lib -lstdc++"
   cd $SYSBENCH_SRC && git pull \
   && ./autogen.sh \
   && ./configure --with-mysql=$MYSQL_BASE \
   && make clean \
-  && perl -pi.bak -e "s/-lperconaserverclient/-lperconaserverclient -lstdc++/" Makefile src/Makefile \
-  && perl -pi.bak -e "s/-l-pthread/-lpthread/g" Makefile src/Makefile \
-  && mv $MYSQL_BASE/lib/libperconaserverclient.so $MYSQL_BASE/lib/libperconaserverclient.soso \
   && make -j ${nproc} \
-  && mv $MYSQL_BASE/lib/libperconaserverclient.soso $MYSQL_BASE/lib/libperconaserverclient.so \
   && make install -j ${nproc} prefix=$MYSQL_BASE/sysbench
+## tmp config for build static sysbench
+#  && perl -pi.bak -e "s/-lperconaserverclient/-lperconaserverclient -lstdc++/" Makefile src/Makefile \
+#  && perl -pi.bak -e "s/-l-pthread/-lpthread/g" Makefile src/Makefile \
+#  && mv -f $MYSQL_BASE/lib/libmysqlclient.so $MYSQL_BASE/lib/libmysqlclient.soso \
+#  && mv -f $MYSQL_BASE/lib/libmysqlclient.soso $MYSQL_BASE/lib/libmysqlclient.so \
+#  && mv -f $MYSQL_BASE/lib/libperconaserverclient.soso $MYSQL_BASE/lib/libperconaserverclient.so \
+#  && mv -f $MYSQL_BASE/lib/libperconaserverclient.so $MYSQL_BASE/lib/libperconaserverclient.soso \
 else
   if [ -d $SYSBENCH_BASE ]; then
     sleep 15

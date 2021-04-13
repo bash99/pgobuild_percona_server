@@ -1,5 +1,6 @@
 #!/bin/bash
 
+yum_install() {
 GNUPGHOME=~/gnupg && mkdir -p ~/gnupg && chmod 600 ~/gnupg \
 && gpg --keyserver ha.pool.sks-keyservers.net --recv-keys 352c64e5 \
 && gpg --export --armor 352c64e5 > ${GNUPGHOME}/RPM-GPG-KEY-EPEL \
@@ -15,3 +16,14 @@ GNUPGHOME=~/gnupg && mkdir -p ~/gnupg && chmod 600 ~/gnupg \
 --slave /usr/local/bin/cpack cpack /usr/bin/cpack3 \
 --slave /usr/local/bin/ccmake ccmake /usr/bin/ccmake3 \
 --family cmake
+}
+
+apt_install() {
+    apt install libjemalloc-dev bzip2 cmake libmecab-dev libnuma-dev libaio-dev libncurses-dev \
+      libreadline-dev libcurl4-openssl-dev libpam0g-dev libbison-dev bison tmux bc patch \
+      libssl-dev libre2-dev libtirpc-dev libedit-dev zip zstd libdata-dmp-perl pkg-config \
+      numactl automake autoconf libtool -y
+}
+
+[[ -f /usr/bin/apt ]] && apt_install
+[[ -f /usr/bin/yum ]] && yum_install

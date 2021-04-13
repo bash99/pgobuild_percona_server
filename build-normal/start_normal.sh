@@ -10,8 +10,11 @@ sudo sync
 #sudo sysctl -q -w vm.drop_caches=3
 #sudo sh -c "echo 3 > /proc/sys/vm/drop_caches"
 
-## lg_dirty_mult:-1 is deal with bug of jemalloc 3.3
-export LD_PRELOAD='/usr/lib64/libjemalloc.so.1' MALLOC_CONF='lg_dirty_mult:-1'
+JEMALLOC="/usr/lib64/libjemalloc.so.1"
+## lg_dirty_mult:-1 is deal with bug of jemalloc 3.3, showld disable for jemalloc 3.9
+JEMALLOC_CONF='lg_dirty_mult:-1'
+[[ -f /usr/lib/x86_64-linux-gnu/libjemalloc.so ]] && JEMALLOC=/usr/lib/x86_64-linux-gnu/libjemalloc.so && JEMALLOC_CONF=""
+export LD_PRELOAD=$JEMALLOC MALLOC_CONF=$JEMALLOC_CONF
 
 sh -c "numactl --interleave=all $MYSQLD_WITHOPT" &
 # [[ ! -f $MYSQL_LOG ]] && sleep 1

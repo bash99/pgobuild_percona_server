@@ -16,7 +16,7 @@ bash $SELF_PATH/patch_version.sh $MYSQL_BUILD_PATH
 
 [[ "$MYSQL_VER" == "8.0" ]] || export optflags=" $CPU_OPT_FLAGS --profile-generate "
 ## 8.0 has cmake options to enable pgo
-[[ "$MYSQL_VER" == "8.0" ]] && export optflags=" $CPU_OPT_FLAGS" PGO_OPT=" -DFPROFILE_GENERATE=ON"
+[[ "$MYSQL_VER" == "8.0" ]] && export optflags=" $CPU_OPT_FLAGS " PGO_OPT=" -DFPROFILE_GENERATE=ON"
 bash $SELF_PATH/../build-normal/compile.sh $MYSQL_BASE ${MYSQL_BUILD_PATH} $MYSQL_VER
 if [ $? -ne 0 ]; then echo "compile failed! Assert: non-0 exit status detected!"; exit 1; fi
 ( head -1 /tmp/${MYSQL_VER}_build && tail -1 /tmp/${MYSQL_VER}_build ) > /tmp/${MYSQL_VER}_profile-gen_compile_time.txt

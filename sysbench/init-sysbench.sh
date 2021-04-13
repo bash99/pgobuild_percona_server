@@ -25,5 +25,7 @@ cd $SYSBENCH_LUA_DIR
 
 echo $SYSBENCH_BIN oltp_insert.lua $SYSBENCH_OPT --threads=1 prepare
 $SYSBENCH_BIN oltp_insert.lua $SYSBENCH_OPT --threads=1 prepare
+## warm up 40 secs after init
+$SYSBENCH_BIN oltp_point_select.lua $SYSBENCH_OPT --time=40 run
 
 cd $CUR_PATH

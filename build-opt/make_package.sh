@@ -26,6 +26,6 @@ rm -rf lib/*.a lib/mysql/plugin/*test* lib/mysql/plugin/qa_auth_* lib/mysql/plug
 grep -rinl profile-gen . | xargs -n 64 perl -pi -e "s///g"
 grep -rinl profile-use . | xargs -n 64 perl -pi -e "s///g"
 cd .. 
-tar cf - $PKGNAME | pxz -4 > $CUR_PATH/mini_$PKGNAME-${PGOED}.tar.xz
+tar cf - $PKGNAME | xz -T0 -4 > $CUR_PATH/mini_$PKGNAME-${PGOED}.tar.xz
 ## zstd is good, we'll use it once default tar on centos 7 can automatic decompress it
 #tar cf - $PKGNAME | zstd -T0 -6 > $CUR_PATH/mini_$PKGNAME.tar.zst
