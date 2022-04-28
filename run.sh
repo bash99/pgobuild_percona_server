@@ -52,6 +52,7 @@ fi
 [[ -f /opt/rh/devtoolset-7/enable ]] && . /opt/rh/devtoolset-7/enable
 [[ -f /opt/rh/devtoolset-8/enable ]] && . /opt/rh/devtoolset-8/enable
 [[ -f /opt/rh/devtoolset-9/enable ]] && . /opt/rh/devtoolset-9/enable
+[[ -f /opt/rh/devtoolset-10/enable ]] && . /opt/rh/devtoolset-10/enable
 
 if [[ "$normal_build" == 'true' ]]; then
   bash $SELF_PATH/build-normal/doall.sh

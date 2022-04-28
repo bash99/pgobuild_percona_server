@@ -9,12 +9,14 @@ MYSQL_BASE=$1
 MYSQL_SOURCE_PATH=$2
 MYSQL_VER=$3
 
-bash $SELF_PATH/../build-normal/prepare_build.sh $MYSQL_SOURCE_PATH $MYSQL_VER "pgobuild"
 MYSQL_BUILD_PATH=${MYSQL_SOURCE_PATH}_pgobuild
+
+bash $SELF_PATH/../build-normal/prepare_build.sh $MYSQL_SOURCE_PATH $MYSQL_VER "pgobuild"
 
 bash $SELF_PATH/patch_version.sh $MYSQL_BUILD_PATH
 
-[[ "$MYSQL_VER" == "8.0" ]] || export optflags=" $CPU_OPT_FLAGS --profile-generate "
+rm -rf profile-data
+[[ "$MYSQL_VER" == "8.0" ]] || export optflags=" $CPU_OPT_FLAGS -fprofile-generate -fprofile-dir=`pwd`/profile-data"
 ## 8.0 has cmake options to enable pgo
 [[ "$MYSQL_VER" == "8.0" ]] && export optflags=" $CPU_OPT_FLAGS " PGO_OPT=" -DFPROFILE_GENERATE=ON"
 bash $SELF_PATH/../build-normal/compile.sh $MYSQL_BASE ${MYSQL_BUILD_PATH} $MYSQL_VER
@@ -37,19 +39,17 @@ sleep 60
 ## in normal situation, you should run pgo after normal build, so mysql and sysbench db is already inited
 ##bash $SELF_PATH/../sysbench/init-sysbench.sh $MYSQL_BASE
 ## mysql 8.0/gcc 9 will generate profile-data in seperate dir
-rm -rf profile-data
 bash $SELF_PATH/../sysbench/train-sysbench.sh $MYSQL_BASE | tee /tmp/${MYSQL_VER}_genprofile.txt
 
 bash $SELF_PATH/../build-normal/shutdown_normal.sh $MYSQL_BASE
 
-#find ${MYSQL_BUILD_PATH} -name "*.gcda" | tail
+#find `pwd`/profile-data -name "*.gcda" | tail
 
-#exit 1
 ### we need reprepared build path for 8.0
-bash $SELF_PATH/../build-normal/prepare_build.sh $MYSQL_SOURCE_PATH $MYSQL_VER "pgobuild"
+[[ "$MYSQL_VER" == "8.0" ]] && bash $SELF_PATH/../build-normal/prepare_build.sh $MYSQL_SOURCE_PATH $MYSQL_VER "pgobuild"
 
 ### use profile, some tokudb branch is not used, so we need -Wnoerror=missing-profile
-[[ "$MYSQL_VER" == "8.0" ]] || export optflags=" $CPU_OPT_FLAGS -fprofile-use -fprofile-correction -Wno-missing-profile"
+[[ "$MYSQL_VER" == "8.0" ]] || export optflags=" $CPU_OPT_FLAGS -fprofile-use -fprofile-dir=`pwd`/profile-data -fprofile-correction -Wno-missing-profile"
 ## 8.0 has cmake options to enable pgo
 [[ "$MYSQL_VER" == "8.0" ]] && export optflags=" $CPU_OPT_FLAGS -Wno-missing-profile" PGO_OPT="-DFPROFILE_USE=ON -DFPROFILE_GENERATE=OFF"
 
