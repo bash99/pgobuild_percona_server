@@ -28,7 +28,7 @@ if [ ! -d $MYSQL_SOURCE_PATH ]; then
     [[ -z $ORIGIN_MYSQL ]] || MYSQL_URL=https://dev.mysql.com/get/Downloads/MySQL-${MAJOR_VER}/mysql-${MAJOR_VER}.${MINI_VER}.tar.gz
     [[ -z $ORIGIN_MYSQL ]] || MYSQL_SOURCE_TARBALL=mysql-${MAJOR_VER}.${MINI_VER}.tar.gz
     echo "ORIGIN_MYSQL=$ORIGIN_MYSQL" use mysql url: $MYSQL_URL
-    safe_curl_download $curl_retry_opt -L -C - $MYSQL_URL -o $MYSQL_SOURCE_TARBALL && \
+    safe_curl_download $MYSQL_URL $MYSQL_SOURCE_TARBALL && \
         mkdir -p $MYSQL_SOURCE_PATH && tar -xf $MYSQL_SOURCE_TARBALL \
         -C $MYSQL_SOURCE_PATH --strip-components=1
 fi

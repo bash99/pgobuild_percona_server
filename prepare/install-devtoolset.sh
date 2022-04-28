@@ -11,5 +11,8 @@ apt_install() {
     apt install build-essential git rsync -y
 }
 
-[[ -f /usr/bin/apt ]] && apt_install
-[[ -f /usr/bin/yum ]] && yum_install
+if [ -f /usr/bin/apt ]; then
+	apt_install
+elif [ -f /usr/bin/yum ]; then
+      	yum_install
+fi

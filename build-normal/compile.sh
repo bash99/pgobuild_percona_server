@@ -49,7 +49,7 @@ case $MYSQL_VER in
 		MJ=$(echo "$MEM_G/4"|bc)
 		LTOMJ=$(echo "$MJ/2"|bc)
 
-                [[ -z $ORIGIN_MYSQL ]] && OTHER_ENG="" || OTHER_ENG="-DWITH_ROCKSDB=1 -DWITH_TOKUDB=1"
+                [[ -z $ORIGIN_MYSQL ]] && OTHER_ENG="" || OTHER_ENG="-DWITH_ROCKSDB=1 -DWITH_TOKUDB=OFF"
 
                 $CMAKE . -DBUILD_CONFIG=mysql_release -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFEATURE_SET=community \
                    -DWITH_NUMA=ON -DWITH_SYSTEMD=1 -DWITH_READLINE=system -DWITH_SSL=system \
