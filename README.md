@@ -46,7 +46,7 @@ There also a seperate script named test_binary.sh can be used to test against of
 
 ### quick test by your self
 
-If you can not build by your self or want to try it fast, you can download binary built by me, [5.6.44-86.0](https://dl.ximen.bid/pgoed_percona-server/mini_percona-server-5.6.48-86.0-pgo-linux-x86_64.tar.xz), [5.7.26-29](https://dl.ximen.bid/pgoed_percona-server/mini_percona-server-5.7.26-29-pgo-linux-x86_64.tar.xz).
+If you can not build by your self or want to try it fast, you can download binary built by me, [5.6.44-86.0](https://dl.ximen.bid/pgoed_percona-server/mini_percona-server-5.6.48-86.0-pgo-linux-x86_64.tar.xz), [5.7.37-40](https://dl.ximen.bid/mysqlpgo/mini_percona-server-5.7.37-40-linux-x86_64-pgoed_centos7.tar.xz). (centos7 binary)
 and official binary [5.6.44](https://www.percona.com/downloads/Percona-Server-5.6/Percona-Server-5.6.44-86.0/binary/tarball/Percona-Server-5.6.44-rel86.0-Linux.x86_64.ssl101.tar.gz)
 
 run bellow scripts to test results (assume you have sudo permisson and at least 15G disk)
@@ -97,7 +97,8 @@ System avg load decreased about 14% in first week.
 
 At least 4C/16G vm with 100G storage is need for build PGOed Percona Server 8.0 (with 30G for /tmp is required for compile with -flto flags), for 5.6 maybe 2c/4G 25G is enough (without LTO), SSD is recommend for fast compiling and stable oltp-write result.
 
-CentOS7 should be used (as percona official docker image use it).
+CentOS7 should be used (as percona official docker image use it). 
+Updated: I've also fix script for debian 10/centos7, it should be worked.
 
 Make sure your VM has internet connection or has http_proxy/https_proxy setted.
 
@@ -199,6 +200,9 @@ It contains scripts which download sysbench branch 1.0 from github and compile a
 
 You can also use a pre-build sysbench binary which static linked againest libmysql.a to avoid this. (see scripts above)
 set SYSBENCH_BASE to pre-build sysbench dir.
+
+### Binary for more Test
+there are [more mini binarys](https://dl.ximen.bid/mysqlpgo/) build for centos7 or debian 10.
 
 ## CopyRight
 
