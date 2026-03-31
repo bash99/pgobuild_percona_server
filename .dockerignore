@@ -1,0 +1,16 @@
+.tmp/
+work/
+work-*/
+
+task_archives/
+
+percona-server-Percona-Server-*/
+
+percona-server-*.tar.gz*
+Percona-Server-*.tar.gz
+boost_*.tar.bz2
+
+artifacts/**
+!artifacts/Percona-Server-8.4.7-7/Percona-Server-8.4.7-7-PGOed.Linux.x86_64.almalinux9.mini.tar.zst
+!artifacts/Percona-Server-8.4.8-8/Percona-Server-8.4.8-8-PGOed.Linux.x86_64.almalinux9.mini.tar.zst
+!artifacts/Percona-Server-8.4.8-8-rocksdb/Percona-Server-8.4.8-8-PGOed.Linux.x86_64.almalinux9.mini.tar.zst

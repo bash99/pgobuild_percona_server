@@ -1,11 +1,38 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-CMDPATH="$( dirname "${BASH_SOURCE[0]}" )"
+set -euo pipefail
 
-sudo $CMDPATH/install-devtoolset.sh
-if [ $? -ne 0 ]; then echo "download devtoolset failed! Assert: non-0 exit status detected!"; exit 1; fi
+CMDPATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-sudo $CMDPATH/install-misc.sh
-if [ $? -ne 0 ]; then echo "download depend package failed! Assert: non-0 exit status detected!"; exit 1; fi
+. "$CMDPATH/../lib/common.sh"
+. "$CMDPATH/../lib/platform.sh"
 
-sudo $CMDPATH/init_syslimit.sh
+: "${SKIP_FULLTEXT_MECAB:=OFF}"
+
+run_with_privilege() {
+  if [[ "${EUID}" -eq 0 ]]; then
+    "$@"
+  elif command -v sudo >/dev/null 2>&1; then
+    sudo "$@"
+  else
+    echo "need root privileges or sudo to run: $*" >&2
+    exit 1
+  fi
+}
+
+run_with_privilege "$CMDPATH/install-devtoolset.sh"
+run_with_privilege "$CMDPATH/install-misc.sh"
+run_with_privilege "$CMDPATH/init_syslimit.sh"
+
+
+MECAB_PREFIX="$(find_mecab_prefix || true)"
+if [[ -n "$MECAB_PREFIX" ]]; then
+  echo "mecab detected at: $MECAB_PREFIX"
+else
+  if [[ "$SKIP_FULLTEXT_MECAB" == "ON" ]]; then
+    echo "warning: mecab headers not found after prepare; continuing because SKIP_FULLTEXT_MECAB=ON" >&2
+  else
+    echo "error: mecab headers not found after prepare; install mecab dependencies or pass --skip-fulltext-mecab" >&2
+    exit 1
+  fi
+fi

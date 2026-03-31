@@ -1,5 +1,24 @@
+work/
+work-*/
+internal/
+prepare_release_plan.md
+
+*.tar
 *.tar.gz
+*.tar.bz2
+*.tar.gz.local
 ps-*
 local
 *.tar.xz
+*.tar.zst
 sysbench_1.0
+
+artifacts/**
+!artifacts/**/
+!artifacts/**/install_*.md
+!artifacts/**/*.md
+percona-server-Percona-Server-*/
+.tmp/
+
+# Local docker/sysbench benchmark outputs
+docker/percona-server-8.4-pgoed/bench/runs/

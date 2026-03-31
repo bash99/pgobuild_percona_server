@@ -1,5 +1,8 @@
 #!/bin/bash
 
+SELF_PATH=$( dirname "${BASH_SOURCE[0]}" )
+. "$SELF_PATH/../lib/common.sh"
+
 : ${1?"Usage: $0 MYSQL_BASE_PATH MYSQL_BUILD_PATH MYSQL_VER"}
 : ${2?"Usage: $0 MYSQL_BASE_PATH MYSQL_BUILD_PATH MYSQL_VER"}
 : ${3?"Usage: $0 MYSQL_BASE_PATH MYSQL_BUILD_PATH MYSQL_VER"}
@@ -9,16 +12,25 @@ MYSQL_VER=$3
 
 NPROC=$(nproc)
 MJ=$(($NPROC*3/2))
-optflags="$optflags $CPU_OPT_FLAGS"
+optflags="${optflags:-} ${CPU_OPT_FLAGS:-}"
 
-[[ -f /opt/rh/rh-mysql57/root/usr/include/mecab.h ]] && MECAB_INC=/opt/rh/rh-mysql57/root/usr
-[[ -f /opt/rh/rh-mysql80/root/usr/include/mecab.h ]] && MECAB_INC=/opt/rh/rh-mysql80/root/usr
-[[ -f /usr/include/mecab.h ]] && MECAB_INC=/usr
+[[ -n ${MECAB_INC:-} ]] || MECAB_INC="$(find_mecab_prefix || true)"
 
-CMAKE=cmake
-[[ -f /usr/bin/ccmake3 ]] && CMAKE=cmake3
+CMAKE="$(resolve_cmake_command || true)"
+[[ -n "$CMAKE" ]] || { echo "cmake or cmake3 is required"; exit 1; }
 
 cd $MYSQL_BUILD_PATH
+
+ROCKSDB_VALUE=1
+TOKUDB_VALUE=1
+if [[ ! -f "$MYSQL_BUILD_PATH/rocksdb/Makefile" ]]; then
+  ROCKSDB_VALUE=0
+  echo "[WARN] rocksdb sources missing under $MYSQL_BUILD_PATH/rocksdb; disabling WITH_ROCKSDB"
+fi
+if [[ ! -f "$MYSQL_BUILD_PATH/storage/tokudb/PerconaFT/CMakeLists.txt" ]]; then
+  TOKUDB_VALUE=0
+  echo "[WARN] tokudb sources missing under $MYSQL_BUILD_PATH/storage/tokudb/PerconaFT; disabling WITH_TOKUDB"
+fi
 
 rm -f /tmp/${MYSQL_VER}_build
 
@@ -33,8 +45,9 @@ case $MYSQL_VER in
                    -DCMAKE_C_FLAGS="${optflags}" -DCMAKE_CXX_FLAGS="${optflags}" \
 	           -DWITH_NUMA=ON -DWITH_SYSTEMD=1 -DWITH_EMBEDDED_SERVER=OFF -DWITH_ZLIB=system \
 	           -DWITH_INNODB_MEMCACHED=1 -DWITH_SCALABILITY_METRICS=ON -DDOWNLOAD_BOOST=0 -DWITH_BOOST=../boost_1_59_0 \
-	           -DWITH_SSL=system -DWITH_MECAB=$MECAB_INC -DENABLE_DOWNLOADS=1 -DWITH_PAM=ON ${ASAN} \
-	           -DWITH_TOKUDB=1 -DWITH_ROCKSDB=1 2>&1 | tee -a /tmp/${MYSQL_VER}_build
+	           -DWITH_COREDUMPER=OFF \
+	           -DWITH_SSL=system -DWITH_MECAB=$MECAB_INC -DENABLE_DOWNLOADS=1 -DWITH_PAM=ON ${ASAN:-} \
+	           -DWITH_TOKUDB=${TOKUDB_VALUE} -DWITH_ROCKSDB=${ROCKSDB_VALUE} 2>&1 | tee -a /tmp/${MYSQL_VER}_build
                 ;;
 	5.6)
 	        $CMAKE . -DBUILD_CONFIG=mysql_release -DCMAKE_BUILD_TYPE=RelWithDebInfo -DENABLE_DTRACE=OFF -DWITH_EMBEDDED_SERVER=OFF \
@@ -49,7 +62,7 @@ case $MYSQL_VER in
 		MJ=$(echo "$MEM_G/4"|bc)
 		LTOMJ=$(echo "$MJ/2"|bc)
 
-                [[ -z $ORIGIN_MYSQL ]] && OTHER_ENG="" || OTHER_ENG="-DWITH_ROCKSDB=1 -DWITH_TOKUDB=OFF"
+		[[ -z ${ORIGIN_MYSQL:-} ]] && OTHER_ENG="" || OTHER_ENG="-DWITH_ROCKSDB=1 -DWITH_TOKUDB=OFF"
 
                 $CMAKE . -DBUILD_CONFIG=mysql_release -DCMAKE_BUILD_TYPE=RelWithDebInfo -DFEATURE_SET=community \
                    -DWITH_NUMA=ON -DWITH_SYSTEMD=1 -DWITH_READLINE=system -DWITH_SSL=system \
@@ -58,8 +71,8 @@ case $MYSQL_VER in
                    -DMYSQL_MAINTAINER_MODE=OFF -DFORCE_INSOURCE_BUILD=1 -DWITH_LZ4=bundled -DWITH_ZLIB=bundled \
                    -DWITH_PROTOBUF=bundled -DWITH_RAPIDJSON=bundled -DWITH_ICU=bundled -DWITH_LIBEVENT=bundled \
                    -DWITH_INNODB_MEMCACHED=1 -DWITH_BOOST=../boost_cur -DDOWNLOAD_BOOST=ON -DWITH_SYSTEM_LIBS=ON \
-                   -DWITH_MECAB=$MECAB_INC -DENABLE_DOWNLOADS=1 -DWITH_PAM=1 -DWITH_ZSTD=bundled ${ASAN} \
-                   ${OTHER_ENG} ${PGO_OPT} \
+	                   -DWITH_MECAB=$MECAB_INC -DENABLE_DOWNLOADS=1 -DWITH_PAM=1 -DWITH_ZSTD=bundled ${ASAN:-} \
+	                   ${OTHER_ENG} ${PGO_OPT:-} \
 		   -DWITH_KEYRING_VAULT=1 2>&1 | tee -a /tmp/${MYSQL_VER}_build
                 ## still some bug when direct make install, systemd require write to /usr/local/mysql, 
                 ## which ignore INSTALL_PREFIX, need run command below to workaroud

@@ -1,0 +1,43 @@
+# Benchmark-only config for sysbench head-to-head runs.
+#
+# Notes:
+# - Not production-safe (durability is relaxed to reduce I/O noise).
+# - Intended goal: keep point_select/read_only CPU-bound after warmup.
+
+[mysqld]
+skip-name-resolve
+host_cache_size=0
+
+# Memory / cache
+# Keep the working set in buffer pool to avoid accidental I/O-bound runs.
+innodb_buffer_pool_size=4800M
+innodb_buffer_pool_instances=4
+
+# Durability / I/O (benchmark-tuned)
+innodb_flush_log_at_trx_commit=2
+sync_binlog=0
+skip-log-bin
+innodb_flush_method=O_DIRECT
+
+# Redo log sizing (MySQL 8.0.30+ / 8.4)
+innodb_redo_log_capacity=2G
+innodb_log_buffer_size=64M
+
+# Reduce overhead for pure throughput comparison
+performance_schema=OFF
+
+# Misc
+table_open_cache=4000
+table_open_cache_instances=16
+thread_cache_size=256
+max_connections=2048
+tmp_table_size=256M
+max_heap_table_size=256M
+
+# Make restarts more stable (if supported)
+loose_innodb_buffer_pool_dump_at_shutdown=ON
+loose_innodb_buffer_pool_load_at_startup=ON
+loose_innodb_buffer_pool_dump_pct=100
+
+# Percona telemetry (ignore if unsupported)
+loose_percona_telemetry_disable=1
