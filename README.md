@@ -53,6 +53,12 @@ Release assets are expected to follow this naming convention:
 
 This repository no longer documents private download mirrors.
 
+Release upload workflow:
+
+- staging and checksum generation: `bash tools/prepare_release_assets.sh`
+- draft release creation and asset upload: `bash tools/publish_github_release.sh`
+- detailed procedure: [docs/release_upload_workflow.md](docs/release_upload_workflow.md)
+
 ## Quick Start
 
 Clone the repository:
@@ -121,6 +127,7 @@ The current Docker recipe targets `8.4.8-8` and expects a matching PGOed `mini.t
 - [docs/pgo_validation_checklist.md](docs/pgo_validation_checklist.md)
 - [docs/pgo_train_modes.md](docs/pgo_train_modes.md)
 - [docs/remote_pgo_workflow.md](docs/remote_pgo_workflow.md)
+- [docs/release_upload_workflow.md](docs/release_upload_workflow.md)
 - [docs/how_to_refresh_latest_8_0.md](docs/how_to_refresh_latest_8_0.md)
 - [task_archives/README.md](task_archives/README.md)
 

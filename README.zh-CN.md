@@ -53,6 +53,12 @@
 
 README 不再保留任何私人下载镜像地址。
 
+对应的 release 上传流程：
+
+- 生成 staging 目录和 `SHA256SUMS.txt`：`bash tools/prepare_release_assets.sh`
+- 创建/更新 draft release 并上传资产：`bash tools/publish_github_release.sh`
+- 详细说明见 [docs/release_upload_workflow.md](docs/release_upload_workflow.md)
+
 ## 快速开始
 
 克隆仓库：
@@ -121,6 +127,7 @@ bash run.sh -i -d -n -p
 - [docs/pgo_validation_checklist.md](docs/pgo_validation_checklist.md)
 - [docs/pgo_train_modes.md](docs/pgo_train_modes.md)
 - [docs/remote_pgo_workflow.md](docs/remote_pgo_workflow.md)
+- [docs/release_upload_workflow.md](docs/release_upload_workflow.md)
 - [docs/how_to_refresh_latest_8_0.md](docs/how_to_refresh_latest_8_0.md)
 - [task_archives/README.md](task_archives/README.md)
 
