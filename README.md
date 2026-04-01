@@ -1,65 +1,149 @@
-[中文说明 / Chinese README](README.zh-CN.md)
+[中文 README](README.zh-CN.md)
 
 # pgobuild_percona_server
 
-Community-maintained tooling for building, benchmarking, packaging, and validating PGOed Percona Server binaries.
+PGO build, benchmark, packaging, and release tooling for Percona Server.
 
-This repository is not an official Percona release channel.
+This project exists to build faster Percona Server binaries by training GCC Profile-Guided Optimization with a broadly useful, non-I/O-bound OLTP read workload. The default training path uses sysbench `point_select` and `read_only` style traffic, keeps the benchmark CPU-bound rather than storage-bound, and then rebuilds the server with `-fprofile-use`.
 
-## What It Covers
+The goal is not to overfit to one narrow synthetic case. The goal is to produce a binary that shows clear gains on general OLTP read workloads and often still improves mixed `read_write` workloads as well.
 
-- prepare build hosts for supported Linux distributions
-- download Percona Server source tarballs
-- build normal and PGOed binaries
-- benchmark with `sysbench`
-- package minimized binary tarballs for release use
-- keep reproducible evidence for benchmark and packaging results
+This repository is community-maintained and is not an official Percona release channel.
 
-The main entrypoint is `run.sh`.
+## Why PGO Works Here
 
-## Verified Matrix
+GCC PGO follows the classic three-stage loop:
 
-| Percona Server | Status | Public references |
-| --- | --- | --- |
-| `8.4` | active | [8.4.8-8 PGO + Docker](task_archives/8.4.8-8-alma9-pgo-docker-completed.md), [8.4.8-8 RocksDB validation](artifacts/Percona-Server-8.4.8-8-rocksdb/pgo-readonly-8.4.8-8-rdb-both-20260317.md) |
-| `8.0` | active | [8.0.45-36 RocksDB validation](artifacts/Percona-Server-8.0.45-36-rocksdb/pgo-readonly-8.0.45-36-rdb-both-20260318.md) |
-| `5.7` | maintained legacy target | [5.7.44-54 readonly PGO recovery](task_archives/5.7.44-54-centos7-readonly-pgo-fixed.md) |
-| `5.6` | historical / final-note target | kept as a future closing release note for a final `CentOS 7` style build |
+1. instrumented build
+2. training run on representative OLTP traffic
+3. profile-use rebuild
 
-More public milestones are listed in [ROADMAP.md](ROADMAP.md).
+For MySQL / Percona hot paths, that runtime profile can improve inlining, code layout, and branch behavior in the CPU-heavy parts of query execution. This repository automates the full cycle through `run.sh`: environment preparation, source download, normal build, profile-generate build, sysbench training, profile-use rebuild, validation, and mini tarball packaging.
 
-## Benchmark Highlights
+Current default policy:
 
-| Target | Scope | Result |
-| --- | --- | --- |
-| `8.4.8-8` | readonly PGO on `AlmaLinux 9` | `read_only +49.61%`, `point_select +58.53%` |
-| `8.0.45-36` | `WITH_ROCKSDB=ON`, dual-engine training | `InnoDB read_only +42.72%`, `RocksDB read_only +62.19%` |
-| `5.7.44-54` | readonly PGO recovery on `CentOS 7` compatible host | `read_only +28.29%`, `point_select +28.34%` |
+- `PGO_TRAIN_MODE=joint_read`
+- `PGO_BENCHMARK_MODE=readonly`
 
-The repository keeps sanitized public evidence only. Full maintainer run logs stay outside the public tree.
+## Performance Snapshot
 
-## Releases
+Current public releases show repeatable read-heavy gains from about `+28%` to `+62%`, depending on version and engine.
 
-Prebuilt binaries are intended to be distributed through GitHub Releases:
+| Version | Environment | Public result | Links |
+| --- | --- | --- | --- |
+| `8.4.8-8` | `AlmaLinux 9` | `read_only +49.61%`, `point_select +58.53%` | [release](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.4.8-8), [result](https://github.com/bash99/pgobuild_percona_server/releases/download/8.4.8-8/pgo-readonly-8.4.8-8-rdb-both-20260317.md) |
+| `8.0.45-36` | `AlmaLinux 8`, `WITH_ROCKSDB=ON` | `InnoDB read_only +42.72%`, `RocksDB read_only +62.19%` | [release](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.0.45-36), [result](https://github.com/bash99/pgobuild_percona_server/releases/download/8.0.45-36/pgo-readonly-8.0.45-36-rdb-both-20260318.md) |
+| `5.7.44-54` | `CentOS 7` | `read_only +28.29%`, `point_select +28.34%` | [release](https://github.com/bash99/pgobuild_percona_server/releases/tag/5.7.44-54), [result](https://github.com/bash99/pgobuild_percona_server/releases/download/5.7.44-54/pgo-readonly-5.7.44-54-20260309.md) |
+
+Mixed workload improvement also appears repeatedly:
+
+- historical project results included about `+22.97%` on an `8.0` `read_write` validation
+- current Docker head-to-head testing against the upstream image showed `read_write +3.39% ~ +21.38%`
+
+## Quick Test By Yourself
+
+If you only want to verify the result quickly, Docker is usually the fastest path.
+
+Docker Hub:
+
+- <https://hub.docker.com/r/bash99/percona-server-8.4-pgoed>
+
+Current published image tags:
+
+- `bash99/percona-server-8.4-pgoed:8.4.8-8`
+- `bash99/percona-server-8.4-pgoed:8.4`
+
+Matching GitHub release:
+
+- [Percona Server 8.4.8-8 release](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.4.8-8)
+
+Basic smoke test:
+
+```bash
+docker pull bash99/percona-server-8.4-pgoed:8.4.8-8
+
+docker run --name ps8488 --rm \
+  -e MYSQL_ROOT_PASSWORD=root \
+  -p 13306:3306 -p 13360:33060 \
+  -d bash99/percona-server-8.4-pgoed:8.4.8-8
+
+docker exec -it ps8488 mysql -uroot -proot -e "SELECT VERSION();"
+```
+
+Expected version:
+
+- `8.4.8-8`
+
+Enable and verify MyRocks if needed:
+
+```bash
+docker exec -it ps8488 mysql -uroot -proot \
+  -e "INSTALL PLUGIN ROCKSDB SONAME 'ha_rocksdb.so'; SHOW PLUGINS LIKE 'ROCKSDB';"
+```
+
+Detailed image verification:
+
+- [docker/percona-server-8.4-pgoed/verification.md](docker/percona-server-8.4-pgoed/verification.md)
+
+## Quick Docker Performance Check
+
+To compare the published PGOed image with the upstream Percona image on the same host:
+
+```bash
+git clone https://github.com/bash99/pgobuild_percona_server.git
+cd pgobuild_percona_server
+
+PGOED_IMAGE=bash99/percona-server-8.4-pgoed:8.4.8-8 \
+OFFICIAL_IMAGE=percona/percona-server:8.4.7-7.1 \
+bash docker/percona-server-8.4-pgoed/bench/run_head2head_sysbench.sh
+```
+
+Current summary from that harness:
+
+- `point_select`: about `+32.74% ~ +37.16%`
+- `read_only`: about `+26.09% ~ +31.94%`
+- `read_write`: about `+3.39% ~ +21.38%`
+
+Related docs:
+
+- [docker/percona-server-8.4-pgoed/bench/README.md](docker/percona-server-8.4-pgoed/bench/README.md)
+- [docker/percona-server-8.4-pgoed/bench/report-sysbench-vs-official-8.4.7-7.1.md](docker/percona-server-8.4-pgoed/bench/report-sysbench-vs-official-8.4.7-7.1.md)
+
+## GitHub Releases
+
+GitHub Releases is the primary public download channel for binary tarballs:
 
 - releases page: <https://github.com/bash99/pgobuild_percona_server/releases>
-- latest release shortcut: <https://github.com/bash99/pgobuild_percona_server/releases/latest>
+- latest shortcut: <https://github.com/bash99/pgobuild_percona_server/releases/latest>
 
-Release assets are expected to follow this naming convention:
+Release assets follow this naming convention:
 
 - `Percona-Server-<version>-PGOed.Linux.x86_64.<distro>.mini.tar.zst`
 - `SHA256SUMS.txt`
 - a matching benchmark summary such as `pgo-readonly-<version>-<date>.md`
 
-This repository no longer documents private download mirrors.
+Current published binaries:
 
-Release upload workflow:
+| Version | Platform | Tarball | Benchmark summary |
+| --- | --- | --- | --- |
+| [`8.4.8-8`](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.4.8-8) | `AlmaLinux 9` | [download](https://github.com/bash99/pgobuild_percona_server/releases/download/8.4.8-8/Percona-Server-8.4.8-8-PGOed.Linux.x86_64.almalinux9.mini.tar.zst) | [summary](https://github.com/bash99/pgobuild_percona_server/releases/download/8.4.8-8/pgo-readonly-8.4.8-8-rdb-both-20260317.md) |
+| [`8.0.45-36`](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.0.45-36) | `AlmaLinux 8` | [download](https://github.com/bash99/pgobuild_percona_server/releases/download/8.0.45-36/Percona-Server-8.0.45-36-PGOed.Linux.x86_64.almalinux8.mini.tar.zst) | [summary](https://github.com/bash99/pgobuild_percona_server/releases/download/8.0.45-36/pgo-readonly-8.0.45-36-rdb-both-20260318.md) |
+| [`5.7.44-54`](https://github.com/bash99/pgobuild_percona_server/releases/tag/5.7.44-54) | `CentOS 7` | [download](https://github.com/bash99/pgobuild_percona_server/releases/download/5.7.44-54/Percona-Server-5.7.44-54-PGOed.Linux.x86_64.centos7.mini.tar.zst) | [summary](https://github.com/bash99/pgobuild_percona_server/releases/download/5.7.44-54/pgo-readonly-5.7.44-54-20260309.md) |
 
-- staging and checksum generation: `bash tools/prepare_release_assets.sh`
-- draft release creation and asset upload: `bash tools/publish_github_release.sh`
-- detailed procedure: [docs/release_upload_workflow.md](docs/release_upload_workflow.md)
+## Stability
 
-## Quick Start
+The stability story is straightforward:
+
+- historical signal: an earlier `5.7.19` PGO binary from this project lineage reportedly ran on about `100+` production servers for roughly `1.5 years` without crash reports
+- current release discipline: a build is only considered publishable after smoke testing, runtime identity checks, profile generation checks, profile-use checks, and benchmark consistency checks all pass
+- operational expectation: these are community builds, so they should still be benchmarked and staged in your own environment before production rollout
+
+Useful references:
+
+- [docs/pgo_validation_checklist.md](docs/pgo_validation_checklist.md)
+- [docs/pgo_train_modes.md](docs/pgo_train_modes.md)
+
+## Build From Source
 
 Clone the repository:
 
@@ -68,7 +152,7 @@ git clone https://github.com/bash99/pgobuild_percona_server.git
 cd pgobuild_percona_server
 ```
 
-Set the version you want to build:
+Set the target version:
 
 ```bash
 export MYSQL_VER=8.4
@@ -76,7 +160,7 @@ export MYSQL_MINI_VER=8-8
 export WORK_ROOT="$PWD/work"
 ```
 
-Run the full flow with separate flags:
+Run the full flow:
 
 ```bash
 bash run.sh -i -d -n -p
@@ -84,7 +168,7 @@ bash run.sh -i -d -n -p
 
 Notes:
 
-- pass flags separately; the historical combined form like `-idnp` is obsolete
+- pass flags separately
 - `-i` installs build dependencies and usually requires `sudo`
 - `-d` downloads source tarballs if they are not already present
 - `-n` runs normal build, smoke, benchmark, and package steps
@@ -104,32 +188,23 @@ Notes:
 | `PGO_TRAIN_MODE` | overrides the training workload mode |
 | `PGO_BENCHMARK_MODE` | overrides the validation workload mode |
 
-Default PGO policy:
+## Support Matrix
 
-- `PGO_TRAIN_MODE=joint_read`
-- `PGO_BENCHMARK_MODE=readonly`
-
-See [docs/pgo_train_modes.md](docs/pgo_train_modes.md) for why `joint_read` is the default.
-
-## Docker
-
-Release builds are intended to be published on Docker Hub, but the repository keeps a local Docker recipe so the image can always be rebuilt from a release asset.
-
-- image recipe: [docker/percona-server-8.4-pgoed](docker/percona-server-8.4-pgoed/README.md)
-- verification log: [docker/percona-server-8.4-pgoed/verification.md](docker/percona-server-8.4-pgoed/verification.md)
-- sysbench image-vs-image benchmark harness: [docker/percona-server-8.4-pgoed/bench/README.md](docker/percona-server-8.4-pgoed/bench/README.md)
-
-The current Docker recipe targets `8.4.8-8` and expects a matching PGOed `mini.tar.zst` release asset.
+| Percona Server | Status | Notes |
+| --- | --- | --- |
+| `8.4` | active | current primary release target and Docker target |
+| `8.0` | active | current primary release target |
+| `5.7` | maintained legacy target | still validated for `CentOS 7` style workflows |
+| `5.6` | historical / closing target | may still receive one final `CentOS 7` compatible build |
 
 ## Docs
 
 - [ROADMAP.md](ROADMAP.md)
 - [docs/pgo_validation_checklist.md](docs/pgo_validation_checklist.md)
 - [docs/pgo_train_modes.md](docs/pgo_train_modes.md)
-- [docs/remote_pgo_workflow.md](docs/remote_pgo_workflow.md)
+- [docs/pgo_crossdb_non_io_bound_oltp_design.md](docs/pgo_crossdb_non_io_bound_oltp_design.md)
+- [docker/percona-server-8.4-pgoed/README.md](docker/percona-server-8.4-pgoed/README.md)
 - [docs/release_upload_workflow.md](docs/release_upload_workflow.md)
-- [docs/how_to_refresh_latest_8_0.md](docs/how_to_refresh_latest_8_0.md)
-- [task_archives/README.md](task_archives/README.md)
 
 ## License
 

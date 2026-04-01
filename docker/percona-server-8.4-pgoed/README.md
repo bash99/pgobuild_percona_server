@@ -37,6 +37,49 @@ docker build -f docker/percona-server-8.4-pgoed/Dockerfile \
   .
 ```
 
+## Build And Push To Docker Hub
+
+This repository now includes a helper script for the Docker Hub repository:
+
+- `bash99/percona-server-8.4-pgoed`
+
+Default publish flow:
+
+```bash
+docker login
+
+bash tools/publish_dockerhub_84_pgoed.sh
+```
+
+That builds from:
+
+- `artifacts/Percona-Server-8.4.8-8-rocksdb/Percona-Server-8.4.8-8-PGOed.Linux.x86_64.almalinux9.mini.tar.zst`
+
+and pushes:
+
+- `bash99/percona-server-8.4-pgoed:8.4.8-8`
+- `bash99/percona-server-8.4-pgoed:8.4`
+
+To also push `latest`:
+
+```bash
+bash tools/publish_dockerhub_84_pgoed.sh --push-latest
+```
+
+To build only without pushing:
+
+```bash
+bash tools/publish_dockerhub_84_pgoed.sh --build-only
+```
+
+To publish a future version from another tarball:
+
+```bash
+bash tools/publish_dockerhub_84_pgoed.sh \
+  --tarball artifacts/Percona-Server-8.4.9-9-rocksdb/Percona-Server-8.4.9-9-PGOed.Linux.x86_64.almalinux9.mini.tar.zst \
+  --push-latest
+```
+
 ## Run
 
 ```bash
@@ -76,3 +119,4 @@ docker exec -it ps8488 mysql -uroot -proot \
 - verification log: `docker/percona-server-8.4-pgoed/verification.md`
 - sysbench benchmark harness: `docker/percona-server-8.4-pgoed/bench/README.md`
 - head-to-head report: `docker/percona-server-8.4-pgoed/bench/report-sysbench-vs-official-8.4.7-7.1.md`
+- publish helper: `tools/publish_dockerhub_84_pgoed.sh`
