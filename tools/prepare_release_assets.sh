@@ -204,14 +204,14 @@ stage_one() {
 
   generate_release_notes "$tag" "$canonical_name" "$result_md" > "$stage_dir/release-notes.md"
 
-  cat > "$stage_dir/release.env" <<EOF
-RELEASE_TAG=$tag
-RELEASE_TITLE=Percona Server $tag PGOed community build
-UPLOAD_DIR=$upload_dir
-CANONICAL_TARBALL=$canonical_name
-RESULT_MD=$(basename "${result_md:-}")
-SOURCE_DIR=$source_dir
-EOF
+  {
+    printf 'RELEASE_TAG=%q\n' "$tag"
+    printf 'RELEASE_TITLE=%q\n' "Percona Server $tag PGOed community build"
+    printf 'UPLOAD_DIR=%q\n' "$upload_dir"
+    printf 'CANONICAL_TARBALL=%q\n' "$canonical_name"
+    printf 'RESULT_MD=%q\n' "$(basename "${result_md:-}")"
+    printf 'SOURCE_DIR=%q\n' "$source_dir"
+  } > "$stage_dir/release.env"
 
   log_info "staged release assets for $tag at $stage_dir"
   log_info "upload assets:"
