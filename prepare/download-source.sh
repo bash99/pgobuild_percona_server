@@ -9,7 +9,14 @@ MINI_VER=${MYSQL_MINI_VER:-30-33}
 MYSQL_SOURCE_PATH=${MYSQL_SOURCE_PATH:-ps-${MAJOR_VER}}
 MYSQL_SOURCE_TARBALL=percona-server-${MAJOR_VER}.${MINI_VER}.tar.gz
 MYSQL_SOURCE_TARBALL_URL=${MYSQL_SOURCE_TARBALL_URL:-https://downloads.percona.com/downloads/Percona-Server-${MAJOR_VER}/Percona-Server-${MAJOR_VER}.${MINI_VER}/source/tarball/percona-server-${MAJOR_VER}.${MINI_VER}.tar.gz}
-MYSQL_SOURCE_FALLBACK_URL=${MYSQL_SOURCE_FALLBACK_URL:-https://github.com/percona/percona-server/archive/refs/tags/Percona-Server-${MAJOR_VER}.${MINI_VER}.tar.gz}
+if [[ -z "${MYSQL_SOURCE_FALLBACK_URLS:-}" ]]; then
+    if [[ "$MAJOR_VER" == "5.6" ]]; then
+        MYSQL_SOURCE_FALLBACK_URLS="https://github.com/percona/percona-server/archive/refs/tags/Percona-Server-${MAJOR_VER}.${MINI_VER}.tar.gz https://github.com/percona/percona-server/archive/refs/heads/5.6.tar.gz"
+    else
+        MYSQL_SOURCE_FALLBACK_URLS="https://github.com/percona/percona-server/archive/refs/tags/Percona-Server-${MAJOR_VER}.${MINI_VER}.tar.gz"
+    fi
+fi
+[[ -z "${MYSQL_SOURCE_FALLBACK_URL:-}" ]] || MYSQL_SOURCE_FALLBACK_URLS="${MYSQL_SOURCE_FALLBACK_URL} ${MYSQL_SOURCE_FALLBACK_URLS:-}"
 
 safe_curl_download() {
 	local url=$1
@@ -45,13 +52,17 @@ if [ ! -d "$MYSQL_SOURCE_PATH" ]; then
     [[ -z ${ORIGIN_MYSQL:-} ]] || MYSQL_SOURCE_TARBALL=mysql-${MAJOR_VER}.${MINI_VER}.tar.gz
     echo "ORIGIN_MYSQL=${ORIGIN_MYSQL:-}" use mysql url: $MYSQL_URL
     if ! safe_curl_download "$MYSQL_URL" "$MYSQL_SOURCE_TARBALL"; then
-        if [[ -n "$MYSQL_SOURCE_FALLBACK_URL" ]]; then
-            echo "primary source download failed, fallback to: $MYSQL_SOURCE_FALLBACK_URL"
-            MYSQL_SOURCE_TARBALL="$(basename "$MYSQL_SOURCE_FALLBACK_URL")"
-            safe_curl_download "$MYSQL_SOURCE_FALLBACK_URL" "$MYSQL_SOURCE_TARBALL"
-        else
-            exit 1
-        fi
+        fallback_ok=0
+        for fallback_url in ${MYSQL_SOURCE_FALLBACK_URLS:-}; do
+            [[ -n "$fallback_url" ]] || continue
+            echo "primary source download failed, fallback to: $fallback_url"
+            MYSQL_SOURCE_TARBALL="$(basename "$fallback_url")"
+            if safe_curl_download "$fallback_url" "$MYSQL_SOURCE_TARBALL"; then
+                fallback_ok=1
+                break
+            fi
+        done
+        [[ $fallback_ok -eq 1 ]] || exit 1
     fi
     mkdir -p "$MYSQL_SOURCE_PATH" && tar -xf "$MYSQL_SOURCE_TARBALL" \
         -C "$MYSQL_SOURCE_PATH" --strip-components=1

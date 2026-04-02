@@ -11,6 +11,28 @@ mysql_stage_name() {
   printf 'ps-%s.%s-%s\n' "$version" "$mini_ver" "$profile"
 }
 
+mysql_supports_mecab() {
+  case "$1" in
+    5.7|8.0|8.4)
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+mysql_supports_initialize_insecure() {
+  case "$1" in
+    5.6)
+      return 1
+      ;;
+    *)
+      return 0
+      ;;
+  esac
+}
+
 mysql_runtime_root() {
   local work_root="$1"
   local stage_name="$2"
@@ -97,6 +119,51 @@ mysql_create_local_user_sql() {
       ;;
     *)
       die "unsupported create_mode for mysql_create_local_user_sql: $create_mode"
+      ;;
+  esac
+}
+
+mysql_provision_local_accounts_sql() {
+  local mysql_ver="$1"
+  local root_password="$2"
+  local sbtest_password="$3"
+
+  case "$mysql_ver" in
+    5.6)
+      cat <<EOF
+SET PASSWORD FOR 'root'@'localhost' = PASSWORD('${root_password}');
+GRANT ALL PRIVILEGES ON *.* TO 'sbtest'@'localhost' IDENTIFIED BY '${sbtest_password}';
+FLUSH PRIVILEGES;
+EOF
+      ;;
+    *)
+      cat <<EOF
+ALTER USER 'root'@'localhost' IDENTIFIED BY '${root_password}';
+$(mysql_create_local_user_sql "$mysql_ver" sbtest "$sbtest_password" if-not-exists)
+GRANT ALL PRIVILEGES ON *.* TO 'sbtest'@'localhost';
+FLUSH PRIVILEGES;
+EOF
+      ;;
+  esac
+}
+
+mysql_prepare_sysbench_user_sql() {
+  local mysql_ver="$1"
+  local sbtest_password="$2"
+
+  case "$mysql_ver" in
+    5.6)
+      cat <<EOF
+GRANT ALL PRIVILEGES ON *.* TO 'sbtest'@'localhost' IDENTIFIED BY '${sbtest_password}';
+FLUSH PRIVILEGES;
+EOF
+      ;;
+    *)
+      cat <<EOF
+$(mysql_create_local_user_sql "$mysql_ver" sbtest "$sbtest_password" if-not-exists)
+ALTER USER 'sbtest'@'localhost' $(mysql_sbtest_auth_clause "$mysql_ver" "$sbtest_password");
+FLUSH PRIVILEGES;
+EOF
       ;;
   esac
 }
@@ -235,6 +302,11 @@ mysql_wait_for_startup_quiesce() {
     log_hit=""
     if [[ -n "${log_file:-}" && -f "$log_file" ]]; then
       log_hit="$(grep -F 'Buffer pool(s) load completed' "$log_file" | tail -n 1 || true)"
+    fi
+
+    if [[ "${status:-}" == *"Cannot open"* && "${status:-}" == *"ib_buffer_pool"* ]]; then
+      log_info "buffer pool file is absent; skipping load wait"
+      return 0
     fi
 
     if [[ ( -n "${status:-}" && "$status" == *"load completed"* ) || -n "$log_hit" ]]; then

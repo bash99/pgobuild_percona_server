@@ -34,6 +34,7 @@ GCC PGO 的基本流程就是三步：
 | `8.4.8-8` | `AlmaLinux 9` | `read_only +49.61%`，`point_select +58.53%` | [release](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.4.8-8)，[result](https://github.com/bash99/pgobuild_percona_server/releases/download/8.4.8-8/pgo-readonly-8.4.8-8-rdb-both-20260317.md) |
 | `8.0.45-36` | `AlmaLinux 8`，`WITH_ROCKSDB=ON` | `InnoDB read_only +42.72%`，`RocksDB read_only +62.19%` | [release](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.0.45-36)，[result](https://github.com/bash99/pgobuild_percona_server/releases/download/8.0.45-36/pgo-readonly-8.0.45-36-rdb-both-20260318.md) |
 | `5.7.44-54` | `CentOS 7` | `read_only +28.29%`，`point_select +28.34%` | [release](https://github.com/bash99/pgobuild_percona_server/releases/tag/5.7.44-54)，[result](https://github.com/bash99/pgobuild_percona_server/releases/download/5.7.44-54/pgo-readonly-5.7.44-54-20260309.md) |
+| `5.6.51-93.0` | `CentOS 7` | `read_only +32.90%`，`point_select +45.34%` | [release](https://github.com/bash99/pgobuild_percona_server/releases/tag/5.6.51-93.0)，[result](https://github.com/bash99/pgobuild_percona_server/releases/download/5.6.51-93.0/pgo-readonly-5.6.51-93.0-20260402.md) |
 
 混合读写负载也并不是完全没有收益：
 
@@ -104,6 +105,8 @@ bash docker/percona-server-8.4-pgoed/bench/run_head2head_sysbench.sh
 - `read_only`：约 `+31.08% ~ +37.50%`
 - `read_write`：约 `+6.56% ~ +18.58%`
 
+当前公开的 PGO 二进制，都是先在支持 NUMA 的 `8` 核虚拟机上生成 profile，再做 profile-use 重编译得到的。因此，如果你在本地 `4` 核、非 NUMA 的开发机上做 Docker 对比，结果可能会略低于验证文档中的专门结果。
+
 相关文档：
 
 - [docker/percona-server-8.4-pgoed/bench/README.md](docker/percona-server-8.4-pgoed/bench/README.md)
@@ -118,7 +121,7 @@ GitHub Releases 是当前公开二进制的主下载入口：
 
 当前 release 资产命名规则：
 
-- `Percona-Server-<version>-PGOed.Linux.x86_64.<distro>.mini.tar.zst`
+- `Percona-Server-<version>[-pgo]-PGOed.Linux.x86_64.<distro>.mini.tar.zst`
 - `SHA256SUMS.txt`
 - 对应的 benchmark 摘要，例如 `pgo-readonly-<version>-<date>.md`
 
@@ -129,6 +132,7 @@ GitHub Releases 是当前公开二进制的主下载入口：
 | [`8.4.8-8`](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.4.8-8) | `AlmaLinux 9` | [download](https://github.com/bash99/pgobuild_percona_server/releases/download/8.4.8-8/Percona-Server-8.4.8-8-PGOed.Linux.x86_64.almalinux9.mini.tar.zst) | [summary](https://github.com/bash99/pgobuild_percona_server/releases/download/8.4.8-8/pgo-readonly-8.4.8-8-rdb-both-20260317.md) |
 | [`8.0.45-36`](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.0.45-36) | `AlmaLinux 8` | [download](https://github.com/bash99/pgobuild_percona_server/releases/download/8.0.45-36/Percona-Server-8.0.45-36-PGOed.Linux.x86_64.almalinux8.mini.tar.zst) | [summary](https://github.com/bash99/pgobuild_percona_server/releases/download/8.0.45-36/pgo-readonly-8.0.45-36-rdb-both-20260318.md) |
 | [`5.7.44-54`](https://github.com/bash99/pgobuild_percona_server/releases/tag/5.7.44-54) | `CentOS 7` | [download](https://github.com/bash99/pgobuild_percona_server/releases/download/5.7.44-54/Percona-Server-5.7.44-54-PGOed.Linux.x86_64.centos7.mini.tar.zst) | [summary](https://github.com/bash99/pgobuild_percona_server/releases/download/5.7.44-54/pgo-readonly-5.7.44-54-20260309.md) |
+| [`5.6.51-93.0`](https://github.com/bash99/pgobuild_percona_server/releases/tag/5.6.51-93.0) | `CentOS 7` | [download](https://github.com/bash99/pgobuild_percona_server/releases/download/5.6.51-93.0/Percona-Server-5.6.51-93.0-pgo-PGOed.Linux.x86_64.centos7.mini.tar.zst) | [summary](https://github.com/bash99/pgobuild_percona_server/releases/download/5.6.51-93.0/pgo-readonly-5.6.51-93.0-20260402.md) |
 
 ## Stability
 
@@ -195,7 +199,7 @@ bash run.sh -i -d -n -p
 | `8.4` | 主线支持 | 当前 release 与 Docker 的主目标 |
 | `8.0` | 主线支持 | 当前 release 的主目标 |
 | `5.7` | 维护中的历史目标 | 仍保留 `CentOS 7` 风格环境验证 |
-| `5.6` | 历史 / 收尾目标 | 后续可能补最后一个 `CentOS 7` 兼容 build |
+| `5.6` | 历史 / 已收尾 | 最后一个 `CentOS 7` 兼容公开 build 已发布为 `5.6.51-93.0` |
 
 ## AI 协助维护
 

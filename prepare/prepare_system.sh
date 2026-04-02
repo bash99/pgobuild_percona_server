@@ -6,6 +6,7 @@ CMDPATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 . "$CMDPATH/../lib/common.sh"
 . "$CMDPATH/../lib/platform.sh"
+. "$CMDPATH/../lib/mysql.sh"
 
 : "${SKIP_FULLTEXT_MECAB:=OFF}"
 
@@ -26,7 +27,9 @@ run_with_privilege "$CMDPATH/init_syslimit.sh"
 
 
 MECAB_PREFIX="$(find_mecab_prefix || true)"
-if [[ -n "$MECAB_PREFIX" ]]; then
+if ! mysql_supports_mecab "${MYSQL_VER:-8.0}"; then
+  echo "info: MYSQL_VER=${MYSQL_VER:-8.0} does not require MeCab fulltext support"
+elif [[ -n "$MECAB_PREFIX" ]]; then
   echo "mecab detected at: $MECAB_PREFIX"
 else
   if [[ "$SKIP_FULLTEXT_MECAB" == "ON" ]]; then

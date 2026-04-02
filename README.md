@@ -34,6 +34,7 @@ Current public releases show repeatable read-heavy gains from about `+28%` to `+
 | `8.4.8-8` | `AlmaLinux 9` | `read_only +49.61%`, `point_select +58.53%` | [release](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.4.8-8), [result](https://github.com/bash99/pgobuild_percona_server/releases/download/8.4.8-8/pgo-readonly-8.4.8-8-rdb-both-20260317.md) |
 | `8.0.45-36` | `AlmaLinux 8`, `WITH_ROCKSDB=ON` | `InnoDB read_only +42.72%`, `RocksDB read_only +62.19%` | [release](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.0.45-36), [result](https://github.com/bash99/pgobuild_percona_server/releases/download/8.0.45-36/pgo-readonly-8.0.45-36-rdb-both-20260318.md) |
 | `5.7.44-54` | `CentOS 7` | `read_only +28.29%`, `point_select +28.34%` | [release](https://github.com/bash99/pgobuild_percona_server/releases/tag/5.7.44-54), [result](https://github.com/bash99/pgobuild_percona_server/releases/download/5.7.44-54/pgo-readonly-5.7.44-54-20260309.md) |
+| `5.6.51-93.0` | `CentOS 7` | `read_only +32.90%`, `point_select +45.34%` | [release](https://github.com/bash99/pgobuild_percona_server/releases/tag/5.6.51-93.0), [result](https://github.com/bash99/pgobuild_percona_server/releases/download/5.6.51-93.0/pgo-readonly-5.6.51-93.0-20260402.md) |
 
 Mixed workload improvement also appears repeatedly:
 
@@ -104,6 +105,8 @@ Current local same-version summary from the `2026-04-02` harness run:
 - `read_only`: about `+31.08% ~ +37.50%`
 - `read_write`: about `+6.56% ~ +18.58%`
 
+Current published PGO binaries are produced by generating profiles and rebuilding on a NUMA-enabled `8-core` VM. Because of that, local Docker A/B checks on a `4-core` non-NUMA development machine may show gains slightly below the dedicated validation reports.
+
 Related docs:
 
 - [docker/percona-server-8.4-pgoed/bench/README.md](docker/percona-server-8.4-pgoed/bench/README.md)
@@ -118,7 +121,7 @@ GitHub Releases is the primary public download channel for binary tarballs:
 
 Release assets follow this naming convention:
 
-- `Percona-Server-<version>-PGOed.Linux.x86_64.<distro>.mini.tar.zst`
+- `Percona-Server-<version>[-pgo]-PGOed.Linux.x86_64.<distro>.mini.tar.zst`
 - `SHA256SUMS.txt`
 - a matching benchmark summary such as `pgo-readonly-<version>-<date>.md`
 
@@ -129,6 +132,7 @@ Current published binaries:
 | [`8.4.8-8`](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.4.8-8) | `AlmaLinux 9` | [download](https://github.com/bash99/pgobuild_percona_server/releases/download/8.4.8-8/Percona-Server-8.4.8-8-PGOed.Linux.x86_64.almalinux9.mini.tar.zst) | [summary](https://github.com/bash99/pgobuild_percona_server/releases/download/8.4.8-8/pgo-readonly-8.4.8-8-rdb-both-20260317.md) |
 | [`8.0.45-36`](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.0.45-36) | `AlmaLinux 8` | [download](https://github.com/bash99/pgobuild_percona_server/releases/download/8.0.45-36/Percona-Server-8.0.45-36-PGOed.Linux.x86_64.almalinux8.mini.tar.zst) | [summary](https://github.com/bash99/pgobuild_percona_server/releases/download/8.0.45-36/pgo-readonly-8.0.45-36-rdb-both-20260318.md) |
 | [`5.7.44-54`](https://github.com/bash99/pgobuild_percona_server/releases/tag/5.7.44-54) | `CentOS 7` | [download](https://github.com/bash99/pgobuild_percona_server/releases/download/5.7.44-54/Percona-Server-5.7.44-54-PGOed.Linux.x86_64.centos7.mini.tar.zst) | [summary](https://github.com/bash99/pgobuild_percona_server/releases/download/5.7.44-54/pgo-readonly-5.7.44-54-20260309.md) |
+| [`5.6.51-93.0`](https://github.com/bash99/pgobuild_percona_server/releases/tag/5.6.51-93.0) | `CentOS 7` | [download](https://github.com/bash99/pgobuild_percona_server/releases/download/5.6.51-93.0/Percona-Server-5.6.51-93.0-pgo-PGOed.Linux.x86_64.centos7.mini.tar.zst) | [summary](https://github.com/bash99/pgobuild_percona_server/releases/download/5.6.51-93.0/pgo-readonly-5.6.51-93.0-20260402.md) |
 
 ## Stability
 
@@ -195,7 +199,7 @@ Notes:
 | `8.4` | active | current primary release target and Docker target |
 | `8.0` | active | current primary release target |
 | `5.7` | maintained legacy target | still validated for `CentOS 7` style workflows |
-| `5.6` | historical / closing target | may still receive one final `CentOS 7` compatible build |
+| `5.6` | historical / closed | final `CentOS 7` compatible public build published as `5.6.51-93.0` |
 
 ## AI-Assisted Maintenance
 

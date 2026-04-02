@@ -27,7 +27,13 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 : "${CPU_OPT_FLAGS:=-march=nehalem -mtune=haswell}"
 : "${SKIP_FULLTEXT_MECAB:=OFF}"
 
-[[ "$MYSQL_VER" == "5.7" ]] || die "build_pgo_57.sh only supports MYSQL_VER=5.7"
+case "$MYSQL_VER" in
+  5.6|5.7)
+    ;;
+  *)
+    die "build_pgo_57.sh only supports MYSQL_VER=5.6 or 5.7"
+    ;;
+esac
 
 require_cmd awk bash find sed tee
 
@@ -55,7 +61,7 @@ ensure_dir "$PGO_PROFILE_DIR"
 [[ -f "$NORMAL_STATE_FILE" ]] || die "missing normal runtime state: $NORMAL_STATE_FILE"
 [[ -f "$NORMAL_TRAIN_LOG" ]] || die "missing normal train log: $NORMAL_TRAIN_LOG"
 
-if [[ "$SKIP_FULLTEXT_MECAB" != "ON" ]]; then
+if mysql_supports_mecab "$MYSQL_VER" && [[ "$SKIP_FULLTEXT_MECAB" != "ON" ]]; then
   export MECAB_INC="${MECAB_INC:-$(find_mecab_prefix || true)}"
   [[ -n "${MECAB_INC:-}" ]] || die "mecab headers not found; install fulltext mecab dependencies or pass --skip-fulltext-mecab"
 fi
@@ -251,4 +257,4 @@ RESULT
 
 awk -v delta="$READONLY_DELTA_PCT" 'BEGIN { exit !(delta+0 > 0) }' || die "PGO read_only delta is not positive: ${READONLY_DELTA_PCT}%"
 
-log_info "5.7 PGO flow complete; result summary: $RESULT_FILE"
+log_info "5.x PGO flow complete; result summary: $RESULT_FILE"

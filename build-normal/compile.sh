@@ -50,10 +50,11 @@ case $MYSQL_VER in
 	           -DWITH_TOKUDB=${TOKUDB_VALUE} -DWITH_ROCKSDB=${ROCKSDB_VALUE} 2>&1 | tee -a /tmp/${MYSQL_VER}_build
                 ;;
 	5.6)
+	        # GCC 11 defaults to gnu++17; Percona Server 5.6 collides with std::byte.
 	        $CMAKE . -DBUILD_CONFIG=mysql_release -DCMAKE_BUILD_TYPE=RelWithDebInfo -DENABLE_DTRACE=OFF -DWITH_EMBEDDED_SERVER=OFF \
-	           -DCMAKE_C_FLAGS="${optflags}" -DCMAKE_CXX_FLAGS="${optflags}" -DWITH_SSL=system -DENABLE_DOWNLOADS=1 \
+	           -DCMAKE_C_FLAGS="${optflags}" -DCMAKE_CXX_FLAGS="${optflags} -std=gnu++11" -DWITH_SSL=system -DENABLE_DOWNLOADS=1 \
 	           -DWITH_INNODB_MEMCACHED=ON -DWITH_SSL=system -DWITH_PAM=ON -DFEATURE_SET=community \
-	           -DWITH_ROCKSDB=0 -DWITH_SCALABILITY_METRICS=ON 2>&1 | tee -a /tmp/${MYSQL_VER}_build
+	           -DWITH_ROCKSDB=0 -DWITHOUT_TOKUDB=1 -DWITHOUT_TOKUDB_STORAGE_ENGINE=1 -DWITH_SCALABILITY_METRICS=ON 2>&1 | tee -a /tmp/${MYSQL_VER}_build
                 ;;
 	8.0)
                 ## 8.0's flto require much memory, so MJ = total_memory_inGB / 4

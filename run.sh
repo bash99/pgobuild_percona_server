@@ -68,7 +68,7 @@ if [[ "$normal_build" == 'true' ]]; then
       bash "$SELF_PATH/stages/smoke_normal_80.sh"
       bash "$SELF_PATH/stages/benchmark_normal_80.sh"
       ;;
-    5.7)
+    5.6|5.7)
       bash "$SELF_PATH/stages/build_normal_57.sh"
       bash "$SELF_PATH/stages/smoke_normal.sh"
       bash "$SELF_PATH/stages/benchmark_normal.sh"
@@ -84,7 +84,7 @@ if [[ "$pgo_build" == 'true' ]]; then
     8.0|8.4)
       bash "$SELF_PATH/stages/build_pgo_80.sh"
       ;;
-    5.7)
+    5.6|5.7)
       bash "$SELF_PATH/stages/build_pgo_57.sh"
       ;;
     *)

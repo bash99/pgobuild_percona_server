@@ -5,6 +5,24 @@ set -euo pipefail
 COMMON_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . "$COMMON_LIB_DIR/platform.sh"
 
+sanitize_locale_env() {
+  local wanted_locale
+
+  if ! command -v locale >/dev/null 2>&1; then
+    return 0
+  fi
+
+  wanted_locale="${LC_ALL:-${LANG:-}}"
+  [[ -n "$wanted_locale" ]] || return 0
+
+  if ! locale -a 2>/dev/null | grep -Fxi "$wanted_locale" >/dev/null 2>&1; then
+    export LC_ALL=C
+    export LANG=C
+  fi
+}
+
+sanitize_locale_env
+
 log_info() {
   printf '[INFO] %s\n' "$*"
 }

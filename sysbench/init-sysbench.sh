@@ -19,8 +19,7 @@ else
 fi
 
 "${MYSQL_CLI[@]}" <<EOF
-$(mysql_create_local_user_sql "${MYSQL_VER:-8.0}" sbtest sbtest12 if-not-exists)
-ALTER USER 'sbtest'@'localhost' $(mysql_sbtest_auth_clause "${MYSQL_VER:-8.0}" sbtest12);
+$(mysql_prepare_sysbench_user_sql "${MYSQL_VER:-8.0}" sbtest12)
 EOF
 
 . "$SELF_PATH/common_config.sh"

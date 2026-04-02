@@ -97,6 +97,16 @@ ensure_dir "$STATE_ROOT"
 PLUGIN_DIR="$(mysql_find_plugin_dir "$INSTALL_ROOT")"
 SERVER_ID="$(date +%s | tail -c 5)"
 CLONED_DATASET=0
+MYSQL_INSTALL_DB_BIN=''
+
+for candidate in \
+  "$INSTALL_ROOT/scripts/mysql_install_db" \
+  "$INSTALL_ROOT/bin/mysql_install_db"; do
+  if [[ -x "$candidate" ]]; then
+    MYSQL_INSTALL_DB_BIN="$candidate"
+    break
+  fi
+done
 
 mysql_emit_config \
   "$MYSQL_VER" \
@@ -136,10 +146,18 @@ else
   mysql_write_client_defaults "$BOOTSTRAP_DEFAULTS" root '' "$SOCKET_PATH"
 
   log_info "initializing datadir: $DATA_DIR"
-  "$INSTALL_ROOT/bin/mysqld" \
-    --defaults-file="$CNF_FILE" \
-    --initialize-insecure \
-    --user="$(whoami)"
+  if mysql_supports_initialize_insecure "$MYSQL_VER"; then
+    "$INSTALL_ROOT/bin/mysqld" \
+      --defaults-file="$CNF_FILE" \
+      --initialize-insecure \
+      --user="$(whoami)"
+  else
+    [[ -n "$MYSQL_INSTALL_DB_BIN" ]] || die "mysql_install_db not found under $INSTALL_ROOT for MYSQL_VER=$MYSQL_VER"
+    "$MYSQL_INSTALL_DB_BIN" \
+      --user="$(whoami)" \
+      --basedir="$INSTALL_ROOT" \
+      --datadir="$DATA_DIR"
+  fi
 
   WAIT_DEFAULTS="$BOOTSTRAP_DEFAULTS"
 fi
@@ -170,12 +188,8 @@ mysql_wait_until_ready \
 
 if (( CLONED_DATASET == 0 )); then
   log_info "provisioning local accounts for smoke and future sysbench"
-  cat <<SQL | "$INSTALL_ROOT/bin/mysql" --defaults-file="$BOOTSTRAP_DEFAULTS"
-ALTER USER 'root'@'localhost' IDENTIFIED BY '${ROOT_PASSWORD}';
-CREATE USER IF NOT EXISTS 'sbtest'@'localhost' IDENTIFIED /*!80000 WITH mysql_native_password */ BY '${SBTEST_PASSWORD}';
-GRANT ALL PRIVILEGES ON *.* TO 'sbtest'@'localhost';
-FLUSH PRIVILEGES;
-SQL
+  mysql_provision_local_accounts_sql "$MYSQL_VER" "$ROOT_PASSWORD" "$SBTEST_PASSWORD" | \
+    "$INSTALL_ROOT/bin/mysql" --defaults-file="$BOOTSTRAP_DEFAULTS"
 
   mysql_write_client_defaults "$ROOT_DEFAULTS" root "$ROOT_PASSWORD" "$SOCKET_PATH"
 fi

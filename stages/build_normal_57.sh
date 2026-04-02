@@ -6,6 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 . "$REPO_ROOT/lib/common.sh"
+. "$REPO_ROOT/lib/mysql.sh"
 
 : "${MYSQL_VER:=5.7}"
 : "${MYSQL_MINI_VER:=44-54}"
@@ -16,7 +17,13 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 : "${CPU_OPT_FLAGS:=-march=nehalem -mtune=haswell}"
 : "${SKIP_FULLTEXT_MECAB:=OFF}"
 
-[[ "$MYSQL_VER" == "5.7" ]] || die "build_normal_57.sh only supports MYSQL_VER=5.7"
+case "$MYSQL_VER" in
+  5.6|5.7)
+    ;;
+  *)
+    die "build_normal_57.sh only supports MYSQL_VER=5.6 or 5.7"
+    ;;
+esac
 
 require_cmd bash awk make nproc sed tar
 
@@ -33,7 +40,7 @@ ensure_dir "$(dirname "$INSTALL_ROOT")"
 rm -rf "$INSTALL_ROOT"
 rm -rf "$WORK_BUILD_ROOT"
 
-if [[ "$SKIP_FULLTEXT_MECAB" != "ON" ]]; then
+if mysql_supports_mecab "$MYSQL_VER" && [[ "$SKIP_FULLTEXT_MECAB" != "ON" ]]; then
   export MECAB_INC="${MECAB_INC:-$(find_mecab_prefix || true)}"
   [[ -n "${MECAB_INC:-}" ]] || die "mecab headers not found; install fulltext mecab dependencies or pass --skip-fulltext-mecab"
 fi
@@ -59,4 +66,4 @@ if [[ -f "/tmp/${MYSQL_VER}_build" ]]; then
   cp "/tmp/${MYSQL_VER}_build" "$COMPILE_TIME_FILE"
 fi
 
-log_info "5.7 normal build complete"
+log_info "5.x normal build complete"
