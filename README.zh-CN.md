@@ -207,6 +207,8 @@ bash run.sh -i -d -n -p
 
 后续如果继续做修改、验证和部署，建议先阅读 [AGENTS.md](AGENTS.md)，再配合合适的 AI Agent tools 直接对仓库执行操作。`AGENTS.md` 已经约定了项目目标、执行链路，以及哪些内容应该保留在公开仓库之外。
 
+Codex 相关使用感谢 [linux.do社区](https://linux.do) 的介绍及相关信息
+
 ## 文档索引
 
 - [AGENTS.md](AGENTS.md)

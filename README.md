@@ -207,6 +207,8 @@ This refactor was executed with `Codex` against the repository workspace.
 
 For future changes, validation, and deployment work, start with [AGENTS.md](AGENTS.md) and use suitable AI agent tools that can operate directly on the repository. `AGENTS.md` captures the project purpose, execution graph, and public/private content boundaries that future agent-driven work should follow.
 
+Codex related setup thanks to [linux.do community](https://linux.do) 
+
 ## Docs
 
 - [AGENTS.md](AGENTS.md)
