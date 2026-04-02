@@ -38,7 +38,7 @@ GCC PGO 的基本流程就是三步：
 混合读写负载也并不是完全没有收益：
 
 - 项目历史里的 `8.0 read_write` 结果曾经达到约 `+22.97%`
-- 当前 Docker 对比官方镜像的 head-to-head 测试里，`read_write` 也出现了 `+3.39% ~ +21.38%` 的提升
+- 当前 Docker 对比官方镜像的 head-to-head 测试里，`read_write` 也出现了 `+6.56% ~ +18.58%` 的提升
 
 ## 快速自行验证
 
@@ -94,20 +94,20 @@ git clone https://github.com/bash99/pgobuild_percona_server.git
 cd pgobuild_percona_server
 
 PGOED_IMAGE=bash99/percona-server-8.4-pgoed:8.4.8-8 \
-OFFICIAL_IMAGE=percona/percona-server:8.4.7-7.1 \
+OFFICIAL_IMAGE=percona/percona-server:8.4.8-8.1 \
 bash docker/percona-server-8.4-pgoed/bench/run_head2head_sysbench.sh
 ```
 
-这套 harness 当前给出的结果摘要：
+下面这些数字来自 `2026-04-02` 这一轮同版本本机对比：
 
-- `point_select`：约 `+32.74% ~ +37.16%`
-- `read_only`：约 `+26.09% ~ +31.94%`
-- `read_write`：约 `+3.39% ~ +21.38%`
+- `point_select`：约 `+34.56% ~ +43.98%`
+- `read_only`：约 `+31.08% ~ +37.50%`
+- `read_write`：约 `+6.56% ~ +18.58%`
 
 相关文档：
 
 - [docker/percona-server-8.4-pgoed/bench/README.md](docker/percona-server-8.4-pgoed/bench/README.md)
-- [docker/percona-server-8.4-pgoed/bench/report-sysbench-vs-official-8.4.7-7.1.md](docker/percona-server-8.4-pgoed/bench/report-sysbench-vs-official-8.4.7-7.1.md)
+- [当前 `8.4.8` 同版本对比报告](docker/percona-server-8.4-pgoed/bench/report-sysbench-vs-official-8.4.8-8.1.md)
 
 ## Release 下载
 
@@ -197,8 +197,15 @@ bash run.sh -i -d -n -p
 | `5.7` | 维护中的历史目标 | 仍保留 `CentOS 7` 风格环境验证 |
 | `5.6` | 历史 / 收尾目标 | 后续可能补最后一个 `CentOS 7` 兼容 build |
 
+## AI 协助维护
+
+本次仓库重构是通过 `Codex` 直接在仓库工作区执行完成的。
+
+后续如果继续做修改、验证和部署，建议先阅读 [AGENTS.md](AGENTS.md)，再配合合适的 AI Agent tools 直接对仓库执行操作。`AGENTS.md` 已经约定了项目目标、执行链路，以及哪些内容应该保留在公开仓库之外。
+
 ## 文档索引
 
+- [AGENTS.md](AGENTS.md)
 - [ROADMAP.md](ROADMAP.md)
 - [docs/pgo_validation_checklist.md](docs/pgo_validation_checklist.md)
 - [docs/pgo_train_modes.md](docs/pgo_train_modes.md)
@@ -210,7 +217,9 @@ bash run.sh -i -d -n -p
 
 仓库中的脚本与文档采用 [MIT](LICENSE)。
 
-`Percona Server` 本体及其 bundled 第三方组件仍遵循各自上游许可证。
+`Percona Server`、`MySQL` 本体及其 bundled 第三方组件仍遵循各自上游许可证与版权声明。
+
+`MySQL` 的版权归属为 `Oracle and/or its affiliates`；`Percona Server` 则保留其上游项目自身的版权与许可证声明。
 
 ## 历史 README
 

@@ -28,6 +28,8 @@ The script uses `--network host` and expects to bind `127.0.0.1:3306`, so run it
 
 Default tunables:
 
+- `OFFICIAL_IMAGE=percona/percona-server:8.4.8-8.1`
+- `PGOED_IMAGE=ps-8.4.8-8-pgoed:latest`
 - `SB_TABLES=16`
 - `SB_TABLE_SIZE=500000`
 - `SB_THREADS_LIST="1 4 8 16"`

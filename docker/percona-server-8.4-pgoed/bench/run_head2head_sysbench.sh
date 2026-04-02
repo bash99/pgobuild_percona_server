@@ -5,8 +5,8 @@ set -euo pipefail
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd -- "${script_dir}/../../.." && pwd)"
 
-OFFICIAL_IMAGE="${OFFICIAL_IMAGE:-percona/percona-server:8.4.7-7.1}"
-PGOED_IMAGE="${PGOED_IMAGE:-ps-8.4.7-pgoed:latest}"
+OFFICIAL_IMAGE="${OFFICIAL_IMAGE:-percona/percona-server:8.4.8-8.1}"
+PGOED_IMAGE="${PGOED_IMAGE:-ps-8.4.8-8-pgoed:latest}"
 SYSBENCH_IMAGE="${SYSBENCH_IMAGE:-perconalab/sysbench:latest}"
 
 MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-root}"

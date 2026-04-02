@@ -118,5 +118,5 @@ docker exec -it ps8488 mysql -uroot -proot \
 
 - verification log: `docker/percona-server-8.4-pgoed/verification.md`
 - sysbench benchmark harness: `docker/percona-server-8.4-pgoed/bench/README.md`
-- head-to-head report: `docker/percona-server-8.4-pgoed/bench/report-sysbench-vs-official-8.4.7-7.1.md`
+- current 8.4.8 same-version report: `docker/percona-server-8.4-pgoed/bench/report-sysbench-vs-official-8.4.8-8.1.md`
 - publish helper: `tools/publish_dockerhub_84_pgoed.sh`

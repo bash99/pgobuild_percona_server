@@ -38,7 +38,7 @@ Current public releases show repeatable read-heavy gains from about `+28%` to `+
 Mixed workload improvement also appears repeatedly:
 
 - historical project results included about `+22.97%` on an `8.0` `read_write` validation
-- current Docker head-to-head testing against the upstream image showed `read_write +3.39% ~ +21.38%`
+- current Docker head-to-head testing against the upstream image showed `read_write +6.56% ~ +18.58%`
 
 ## Quick Test By Yourself
 
@@ -94,20 +94,20 @@ git clone https://github.com/bash99/pgobuild_percona_server.git
 cd pgobuild_percona_server
 
 PGOED_IMAGE=bash99/percona-server-8.4-pgoed:8.4.8-8 \
-OFFICIAL_IMAGE=percona/percona-server:8.4.7-7.1 \
+OFFICIAL_IMAGE=percona/percona-server:8.4.8-8.1 \
 bash docker/percona-server-8.4-pgoed/bench/run_head2head_sysbench.sh
 ```
 
-Current summary from that harness:
+Current local same-version summary from the `2026-04-02` harness run:
 
-- `point_select`: about `+32.74% ~ +37.16%`
-- `read_only`: about `+26.09% ~ +31.94%`
-- `read_write`: about `+3.39% ~ +21.38%`
+- `point_select`: about `+34.56% ~ +43.98%`
+- `read_only`: about `+31.08% ~ +37.50%`
+- `read_write`: about `+6.56% ~ +18.58%`
 
 Related docs:
 
 - [docker/percona-server-8.4-pgoed/bench/README.md](docker/percona-server-8.4-pgoed/bench/README.md)
-- [docker/percona-server-8.4-pgoed/bench/report-sysbench-vs-official-8.4.7-7.1.md](docker/percona-server-8.4-pgoed/bench/report-sysbench-vs-official-8.4.7-7.1.md)
+- [current 8.4.8 same-version report](docker/percona-server-8.4-pgoed/bench/report-sysbench-vs-official-8.4.8-8.1.md)
 
 ## GitHub Releases
 
@@ -197,8 +197,15 @@ Notes:
 | `5.7` | maintained legacy target | still validated for `CentOS 7` style workflows |
 | `5.6` | historical / closing target | may still receive one final `CentOS 7` compatible build |
 
+## AI-Assisted Maintenance
+
+This refactor was executed with `Codex` against the repository workspace.
+
+For future changes, validation, and deployment work, start with [AGENTS.md](AGENTS.md) and use suitable AI agent tools that can operate directly on the repository. `AGENTS.md` captures the project purpose, execution graph, and public/private content boundaries that future agent-driven work should follow.
+
 ## Docs
 
+- [AGENTS.md](AGENTS.md)
 - [ROADMAP.md](ROADMAP.md)
 - [docs/pgo_validation_checklist.md](docs/pgo_validation_checklist.md)
 - [docs/pgo_train_modes.md](docs/pgo_train_modes.md)
@@ -210,7 +217,9 @@ Notes:
 
 The scripts and documentation in this repository are licensed under [MIT](LICENSE).
 
-Percona Server itself and bundled third-party components remain subject to their own upstream licenses.
+Percona Server, MySQL, and bundled third-party components remain subject to their own upstream licenses and copyright notices.
+
+MySQL copyright belongs to Oracle and/or its affiliates. Percona Server carries separate upstream copyright and license notices from Percona and other contributors.
 
 ## Legacy
 

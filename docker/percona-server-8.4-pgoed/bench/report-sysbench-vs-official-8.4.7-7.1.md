@@ -1,5 +1,7 @@
 # Sysbench head-to-head: `ps-8.4.7-pgoed` vs `percona/percona-server:8.4.7-7.1`
 
+> Historical report retained for reference. Current same-version checks should be rerun against `percona/percona-server:8.4.8-8`.
+
 ## Summary
 
 - date: `2026-03-14`
