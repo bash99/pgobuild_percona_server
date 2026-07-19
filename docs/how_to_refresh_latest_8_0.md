@@ -9,10 +9,19 @@ Example:
 
 ```bash
 export MYSQL_VER=8.0
-export MYSQL_MINI_VER=45-36
+export MYSQL_MINI_VER=46-37
 ```
 
 ## 2. Download the source package
+
+On a remote build VM, load the VM-local proxy helper before downloading:
+
+```bash
+source ~/proxy.sh
+```
+
+Use the maintainer-approved private proxy configuration if the helper is not
+present. Do not commit private proxy endpoints to the repository.
 
 ```bash
 bash run.sh -d
@@ -49,7 +58,7 @@ bash run.sh -p
 This performs:
 
 1. `profile-generate` build
-2. readonly training with `point_select + read_only`
+2. `joint_read` profile training covering `point_select + read_only`
 3. `profile-use` rebuild
 4. readonly validation against the normal baseline
 5. pgo mini package generation

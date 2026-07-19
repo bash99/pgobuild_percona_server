@@ -29,18 +29,17 @@ Official references:
 
 The staging script normalizes naming, copies the public-safe result markdown, and generates `SHA256SUMS.txt`.
 
-For the current three release candidates:
+For the current `8.0.46-37` release candidate:
 
 ```bash
 bash tools/prepare_release_assets.sh \
-  artifacts/Percona-Server-8.4.8-8-rocksdb \
-  artifacts/Percona-Server-8.0.45-36-rocksdb \
-  artifacts/centos7-percona57-pgo-5.7.44-54
+  artifacts/Percona-Server-8.0.46-37-rocksdb
 ```
 
 Staged output:
 
 - `local/release-assets/8.4.8-8/`
+- `local/release-assets/8.0.46-37/`
 - `local/release-assets/8.0.45-36/`
 - `local/release-assets/5.7.44-54/`
 
@@ -53,6 +52,7 @@ Each stage directory contains:
 Example uploaded filenames:
 
 - `Percona-Server-8.4.8-8-PGOed.Linux.x86_64.almalinux9.mini.tar.zst`
+- `Percona-Server-8.0.46-37-PGOed.Linux.x86_64.almalinux8.mini.tar.zst`
 - `Percona-Server-8.0.45-36-PGOed.Linux.x86_64.almalinux8.mini.tar.zst`
 - `Percona-Server-5.7.44-54-PGOed.Linux.x86_64.centos7.mini.tar.zst`
 
@@ -81,6 +81,7 @@ bash tools/publish_github_release.sh --all --create-tag
 Or do them one by one:
 
 ```bash
+bash tools/publish_github_release.sh --create-tag --publish local/release-assets/8.0.46-37
 bash tools/publish_github_release.sh --create-tag local/release-assets/8.4.8-8
 bash tools/publish_github_release.sh --create-tag local/release-assets/8.0.45-36
 bash tools/publish_github_release.sh --create-tag local/release-assets/5.7.44-54

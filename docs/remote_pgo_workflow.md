@@ -27,6 +27,12 @@ Recommended helper:
 
 - push code + source archives: `tools/remote_sync_to_host.sh`
 
+Before any remote source or dependency download, load the build VM's
+maintainer-provided proxy helper (`source ~/proxy.sh`) when it is available.
+If the helper is unavailable, use the approved proxy configuration for that
+private build network. Keep proxy endpoints out of tracked public files and
+logs.
+
 This helper uses `git ls-files`, which naturally follows the repository's ignore strategy by syncing only tracked project files, then separately sends Percona/Boost source tarballs if present in repo root.
 
 ## What to run on remote

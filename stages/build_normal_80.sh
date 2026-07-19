@@ -12,7 +12,7 @@ if platform_enable_optional_toolchain >/dev/null 2>&1; then
 fi
 
 : "${MYSQL_VER:=8.0}"
-: "${MYSQL_MINI_VER:=44-35}"
+: "${MYSQL_MINI_VER:=46-37}"
 : "${BUILD_PROFILE:=normal}"
 : "${ENABLE_CCACHE:=AUTO}"
 : "${ENABLE_LTO:=OFF}"

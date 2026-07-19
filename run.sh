@@ -37,7 +37,7 @@ SELF_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 : ${CPU_OPT_FLAGS:="-march=nehalem -mtune=haswell"}
 : ${MYSQL_VER:=8.0}
-: ${MYSQL_MINI_VER:=45-36}
+: ${MYSQL_MINI_VER:=46-37}
 if [[ "$skip_fulltext_mecab" == 'true' ]]; then
   export SKIP_FULLTEXT_MECAB=ON
 else

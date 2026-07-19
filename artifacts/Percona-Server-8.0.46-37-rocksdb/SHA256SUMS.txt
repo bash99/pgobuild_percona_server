@@ -1,0 +1,2 @@
+9e0c8a5ad5063541fd011118b661ead6db7d9435a1c53145217e6039877c75ad  Percona-Server-8.0.46-37-normal-rdb.Linux.x86_64.almalinux8.mini.tar.zst
+933655002186d9f5d475e927eddb65ba7f7e898da14f1781def27af2667bf93e  Percona-Server-8.0.46-37-PGOed.Linux.x86_64.almalinux8.mini.tar.zst

@@ -18,6 +18,7 @@ It is not an official Percona distribution channel.
 ## Verified Highlights
 
 - `8.4.8-8`: PGO validation, Docker image recipe, RocksDB-enabled build validation
+- `8.0.46-37`: published AlmaLinux 8 PGO validation with RocksDB enabled
 - `8.0.45-36`: PGO validation on modern Linux, including RocksDB-enabled dual-engine training
 - `5.7.44-54`: recovered readonly PGO flow on `CentOS 7` compatible hosts
 - `5.7.44-57`: published readonly PGO validation (`read_only +29.51%`, `point_select +43.73%`)
