@@ -31,6 +31,7 @@ Current public releases show repeatable read-heavy gains from about `+28%` to `+
 
 | Version | Environment | Public result | Links |
 | --- | --- | --- | --- |
+| `8.4.10-10` | `AlmaLinux 9`, `WITH_ROCKSDB=ON` | `InnoDB read_only +47.21%`, `RocksDB read_only +59.07%` | [release](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.4.10-10), [result](https://github.com/bash99/pgobuild_percona_server/releases/download/8.4.10-10/pgo-readonly-8.4.10-10-20260719.md) |
 | `8.4.8-8` | `AlmaLinux 9` | `read_only +49.61%`, `point_select +58.53%` | [release](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.4.8-8), [result](https://github.com/bash99/pgobuild_percona_server/releases/download/8.4.8-8/pgo-readonly-8.4.8-8-rdb-both-20260317.md) |
 | `8.0.46-37` | `AlmaLinux 8`, `WITH_ROCKSDB=ON` | `InnoDB read_only +45.37%`, `point_select +55.52%` | [release](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.0.46-37), [result](https://github.com/bash99/pgobuild_percona_server/releases/download/8.0.46-37/pgo-readonly-8.0.46-37-20260719.md) |
 | `8.0.45-36` | `AlmaLinux 8`, `WITH_ROCKSDB=ON` | `InnoDB read_only +42.72%`, `RocksDB read_only +62.19%` | [release](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.0.45-36), [result](https://github.com/bash99/pgobuild_percona_server/releases/download/8.0.45-36/pgo-readonly-8.0.45-36-rdb-both-20260318.md) |
@@ -55,6 +56,8 @@ Current published image tags:
 
 - `bash99/percona-server-8.4-pgoed:8.4.8-8`
 - `bash99/percona-server-8.4-pgoed:8.4`
+
+The `8.4.10-10` release adds a validated RocksDB-enabled PGO binary tarball. No new Docker Hub image tag was created in that release; the published Docker image remains `8.4.8-8`.
 
 Matching GitHub release:
 
@@ -131,6 +134,7 @@ Current published binaries:
 
 | Version | Platform | Tarball | Benchmark summary |
 | --- | --- | --- | --- |
+| [`8.4.10-10`](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.4.10-10) | `AlmaLinux 9` | [download](https://github.com/bash99/pgobuild_percona_server/releases/download/8.4.10-10/Percona-Server-8.4.10-10-PGOed.Linux.x86_64.almalinux9.mini.tar.zst) | [summary](https://github.com/bash99/pgobuild_percona_server/releases/download/8.4.10-10/pgo-readonly-8.4.10-10-20260719.md) |
 | [`8.4.8-8`](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.4.8-8) | `AlmaLinux 9` | [download](https://github.com/bash99/pgobuild_percona_server/releases/download/8.4.8-8/Percona-Server-8.4.8-8-PGOed.Linux.x86_64.almalinux9.mini.tar.zst) | [summary](https://github.com/bash99/pgobuild_percona_server/releases/download/8.4.8-8/pgo-readonly-8.4.8-8-rdb-both-20260317.md) |
 | [`8.0.46-37`](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.0.46-37) | `AlmaLinux 8` | [download](https://github.com/bash99/pgobuild_percona_server/releases/download/8.0.46-37/Percona-Server-8.0.46-37-PGOed.Linux.x86_64.almalinux8.mini.tar.zst) | [summary](https://github.com/bash99/pgobuild_percona_server/releases/download/8.0.46-37/pgo-readonly-8.0.46-37-20260719.md) |
 | [`8.0.45-36`](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.0.45-36) | `AlmaLinux 8` | [download](https://github.com/bash99/pgobuild_percona_server/releases/download/8.0.45-36/Percona-Server-8.0.45-36-PGOed.Linux.x86_64.almalinux8.mini.tar.zst) | [summary](https://github.com/bash99/pgobuild_percona_server/releases/download/8.0.45-36/pgo-readonly-8.0.45-36-rdb-both-20260318.md) |
@@ -164,7 +168,7 @@ Set the target version:
 
 ```bash
 export MYSQL_VER=8.4
-export MYSQL_MINI_VER=8-8
+export MYSQL_MINI_VER=10-10
 export WORK_ROOT="$PWD/work"
 ```
 
@@ -200,7 +204,7 @@ Notes:
 
 | Percona Server | Status | Notes |
 | --- | --- | --- |
-| `8.4` | active | current primary release target and Docker target |
+| `8.4` | active | current primary release target; latest validated binary is `8.4.10-10`, while the published Docker image remains `8.4.8-8` |
 | `8.0` | active | current primary release target |
 | `5.7` | maintained legacy target | latest published validation target is `5.7.44-57`; `5.7.44-54` remains the previous published release |
 | `5.6` | historical / closed | final `CentOS 7` compatible public build published as `5.6.51-93.0` |

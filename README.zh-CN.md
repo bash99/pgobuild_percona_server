@@ -31,6 +31,7 @@ GCC PGO 的基本流程就是三步：
 
 | 版本 | 环境 | 公开结果 | 链接 |
 | --- | --- | --- | --- |
+| `8.4.10-10` | `AlmaLinux 9`，`WITH_ROCKSDB=ON` | `InnoDB read_only +47.21%`，`RocksDB read_only +59.07%` | [release](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.4.10-10)，[result](https://github.com/bash99/pgobuild_percona_server/releases/download/8.4.10-10/pgo-readonly-8.4.10-10-20260719.md) |
 | `8.4.8-8` | `AlmaLinux 9` | `read_only +49.61%`，`point_select +58.53%` | [release](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.4.8-8)，[result](https://github.com/bash99/pgobuild_percona_server/releases/download/8.4.8-8/pgo-readonly-8.4.8-8-rdb-both-20260317.md) |
 | `8.0.46-37` | `AlmaLinux 8`，`WITH_ROCKSDB=ON` | `InnoDB read_only +45.37%`，`point_select +55.52%` | [release](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.0.46-37)，[result](https://github.com/bash99/pgobuild_percona_server/releases/download/8.0.46-37/pgo-readonly-8.0.46-37-20260719.md) |
 | `8.0.45-36` | `AlmaLinux 8`，`WITH_ROCKSDB=ON` | `InnoDB read_only +42.72%`，`RocksDB read_only +62.19%` | [release](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.0.45-36)，[result](https://github.com/bash99/pgobuild_percona_server/releases/download/8.0.45-36/pgo-readonly-8.0.45-36-rdb-both-20260318.md) |
@@ -55,6 +56,8 @@ Docker Hub 地址：
 
 - `bash99/percona-server-8.4-pgoed:8.4.8-8`
 - `bash99/percona-server-8.4-pgoed:8.4`
+
+`8.4.10-10` release 新增了经过验证、启用 RocksDB 的 PGO 二进制 tarball。本次没有创建新的 Docker Hub 镜像 tag；当前已发布的 Docker 镜像仍然是 `8.4.8-8`。
 
 对应 GitHub Release：
 
@@ -131,6 +134,7 @@ GitHub Releases 是当前公开二进制的主下载入口：
 
 | 版本 | 平台 | Tarball | Benchmark 摘要 |
 | --- | --- | --- | --- |
+| [`8.4.10-10`](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.4.10-10) | `AlmaLinux 9` | [download](https://github.com/bash99/pgobuild_percona_server/releases/download/8.4.10-10/Percona-Server-8.4.10-10-PGOed.Linux.x86_64.almalinux9.mini.tar.zst) | [summary](https://github.com/bash99/pgobuild_percona_server/releases/download/8.4.10-10/pgo-readonly-8.4.10-10-20260719.md) |
 | [`8.4.8-8`](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.4.8-8) | `AlmaLinux 9` | [download](https://github.com/bash99/pgobuild_percona_server/releases/download/8.4.8-8/Percona-Server-8.4.8-8-PGOed.Linux.x86_64.almalinux9.mini.tar.zst) | [summary](https://github.com/bash99/pgobuild_percona_server/releases/download/8.4.8-8/pgo-readonly-8.4.8-8-rdb-both-20260317.md) |
 | [`8.0.46-37`](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.0.46-37) | `AlmaLinux 8` | [download](https://github.com/bash99/pgobuild_percona_server/releases/download/8.0.46-37/Percona-Server-8.0.46-37-PGOed.Linux.x86_64.almalinux8.mini.tar.zst) | [summary](https://github.com/bash99/pgobuild_percona_server/releases/download/8.0.46-37/pgo-readonly-8.0.46-37-20260719.md) |
 | [`8.0.45-36`](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.0.45-36) | `AlmaLinux 8` | [download](https://github.com/bash99/pgobuild_percona_server/releases/download/8.0.45-36/Percona-Server-8.0.45-36-PGOed.Linux.x86_64.almalinux8.mini.tar.zst) | [summary](https://github.com/bash99/pgobuild_percona_server/releases/download/8.0.45-36/pgo-readonly-8.0.45-36-rdb-both-20260318.md) |
@@ -164,7 +168,7 @@ cd pgobuild_percona_server
 
 ```bash
 export MYSQL_VER=8.4
-export MYSQL_MINI_VER=8-8
+export MYSQL_MINI_VER=10-10
 export WORK_ROOT="$PWD/work"
 ```
 
@@ -200,7 +204,7 @@ bash run.sh -i -d -n -p
 
 | Percona Server | 状态 | 说明 |
 | --- | --- | --- |
-| `8.4` | 主线支持 | 当前 release 与 Docker 的主目标 |
+| `8.4` | 主线支持 | 当前 release 的主目标；最新验证二进制为 `8.4.10-10`，已发布 Docker 镜像仍为 `8.4.8-8` |
 | `8.0` | 主线支持 | 当前 release 的主目标 |
 | `5.7` | 维护中的历史目标 | 当前已发布验证目标为 `5.7.44-57`；`5.7.44-54` 保留为上一版公开 release |
 | `5.6` | 历史 / 已收尾 | 最后一个 `CentOS 7` 兼容公开 build 已发布为 `5.6.51-93.0` |

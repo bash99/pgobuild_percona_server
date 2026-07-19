@@ -4,7 +4,7 @@ This directory contains a community-maintained Docker image recipe built from a 
 
 Current default assumptions:
 
-- target server: `Percona Server 8.4.8-8`
+- target server: `Percona Server 8.4.10-10` for the latest local build example
 - input binary: RocksDB-enabled PGOed mini tarball
 - base image: `redhat/ubi9-minimal`
 - telemetry disabled by default
@@ -18,13 +18,13 @@ Current default assumptions:
 
 Default expected path:
 
-- `artifacts/Percona-Server-8.4.8-8-rocksdb/Percona-Server-8.4.8-8-PGOed.Linux.x86_64.almalinux9.mini.tar.zst`
+- `artifacts/Percona-Server-8.4.10-10-rocksdb/Percona-Server-8.4.10-10-PGOed.Linux.x86_64.almalinux9.mini.tar.zst`
 
 ## Build
 
 ```bash
 docker build -f docker/percona-server-8.4-pgoed/Dockerfile \
-  -t ps-8.4.8-8-pgoed \
+  -t ps-8.4.10-10-pgoed \
   -t ps-8.4-pgoed .
 ```
 
@@ -32,8 +32,8 @@ To use a different tarball path:
 
 ```bash
 docker build -f docker/percona-server-8.4-pgoed/Dockerfile \
-  -t ps-8.4.8-8-pgoed \
-  --build-arg PS_TARBALL=artifacts/Percona-Server-8.4.8-8-rocksdb/Percona-Server-8.4.8-8-PGOed.Linux.x86_64.almalinux9.mini.tar.zst \
+  -t ps-8.4.10-10-pgoed \
+  --build-arg PS_TARBALL=artifacts/Percona-Server-8.4.10-10-rocksdb/Percona-Server-8.4.10-10-PGOed.Linux.x86_64.almalinux9.mini.tar.zst \
   .
 ```
 
@@ -60,6 +60,8 @@ and pushes:
 - `bash99/percona-server-8.4-pgoed:8.4.8-8`
 - `bash99/percona-server-8.4-pgoed:8.4`
 
+The latest `8.4.10-10` binary release does not publish a new Docker Hub tag. The helper's default publish target intentionally remains the previously validated `8.4.8-8` image until a separate Docker build is run.
+
 To also push `latest`:
 
 ```bash
@@ -83,22 +85,22 @@ bash tools/publish_dockerhub_84_pgoed.sh \
 ## Run
 
 ```bash
-docker run --name ps8488 --rm \
+docker run --name ps841010 --rm \
   -e MYSQL_ROOT_PASSWORD=root \
   -p 3306:3306 -p 33060:33060 \
-  ps-8.4.8-8-pgoed
+  ps-8.4.10-10-pgoed
 ```
 
 Basic connectivity check:
 
 ```bash
-docker exec -it ps8488 mysql -uroot -proot -e "SELECT VERSION();"
+docker exec -it ps841010 mysql -uroot -proot -e "SELECT VERSION();"
 ```
 
 Enable MyRocks explicitly if needed:
 
 ```bash
-docker exec -it ps8488 mysql -uroot -proot \
+docker exec -it ps841010 mysql -uroot -proot \
   -e "INSTALL PLUGIN ROCKSDB SONAME 'ha_rocksdb.so'; SHOW PLUGINS LIKE 'ROCKSDB';"
 ```
 

@@ -83,9 +83,9 @@ extract_metric_from_result() {
   local case_name="$2"
 
   awk -F'|' -v case_name="$case_name" '
-    $0 ~ ("\\| " case_name " \\|") {
-      value=$5
-      gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+    NF >= 6 && index($0, case_name) {
+      value=$6
+     gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
       print value
       exit
     }

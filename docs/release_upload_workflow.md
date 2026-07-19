@@ -29,16 +29,17 @@ Official references:
 
 The staging script normalizes naming, copies the public-safe result markdown, and generates `SHA256SUMS.txt`.
 
-For the current `8.0.46-37` release candidate:
+For the current `8.4.10-10` release candidate:
 
 ```bash
 bash tools/prepare_release_assets.sh \
-  artifacts/Percona-Server-8.0.46-37-rocksdb
+  artifacts/Percona-Server-8.4.10-10-rocksdb
 ```
 
 Staged output:
 
 - `local/release-assets/8.4.8-8/`
+- `local/release-assets/8.4.10-10/`
 - `local/release-assets/8.0.46-37/`
 - `local/release-assets/8.0.45-36/`
 - `local/release-assets/5.7.44-54/`
@@ -52,6 +53,7 @@ Each stage directory contains:
 Example uploaded filenames:
 
 - `Percona-Server-8.4.8-8-PGOed.Linux.x86_64.almalinux9.mini.tar.zst`
+- `Percona-Server-8.4.10-10-PGOed.Linux.x86_64.almalinux9.mini.tar.zst`
 - `Percona-Server-8.0.46-37-PGOed.Linux.x86_64.almalinux8.mini.tar.zst`
 - `Percona-Server-8.0.45-36-PGOed.Linux.x86_64.almalinux8.mini.tar.zst`
 - `Percona-Server-5.7.44-54-PGOed.Linux.x86_64.centos7.mini.tar.zst`
@@ -81,8 +83,9 @@ bash tools/publish_github_release.sh --all --create-tag
 Or do them one by one:
 
 ```bash
-bash tools/publish_github_release.sh --create-tag --publish local/release-assets/8.0.46-37
+bash tools/publish_github_release.sh --create-tag --publish local/release-assets/8.4.10-10
 bash tools/publish_github_release.sh --create-tag local/release-assets/8.4.8-8
+bash tools/publish_github_release.sh --create-tag local/release-assets/8.0.46-37
 bash tools/publish_github_release.sh --create-tag local/release-assets/8.0.45-36
 bash tools/publish_github_release.sh --create-tag local/release-assets/5.7.44-54
 ```
@@ -119,5 +122,7 @@ This is intentionally "semi-automated":
 
 - the script handles naming, checksums, notes, tag creation, and upload
 - you still review the draft release before publishing
+
+The `8.4.10-10` release in this update publishes the validated PGO binary tarball only. The Docker Hub image remains at the previously published `8.4.8-8` tag until a separate image build and validation is completed.
 
 That matches GitHub CLI's draft-friendly workflow well.

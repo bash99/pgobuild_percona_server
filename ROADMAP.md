@@ -17,6 +17,7 @@ It is not an official Percona distribution channel.
 
 ## Verified Highlights
 
+- `8.4.10-10`: published AlmaLinux 9 PGO validation with RocksDB enabled; InnoDB and RocksDB readonly validation passed
 - `8.4.8-8`: PGO validation, Docker image recipe, RocksDB-enabled build validation
 - `8.0.46-37`: published AlmaLinux 8 PGO validation with RocksDB enabled
 - `8.0.45-36`: PGO validation on modern Linux, including RocksDB-enabled dual-engine training
@@ -25,7 +26,7 @@ It is not an official Percona distribution channel.
 
 ## Next Milestones
 
-1. Publish GitHub Releases as the primary binary download channel.
-2. Publish Docker Hub images derived from release assets.
+1. Keep GitHub Releases as the primary binary download channel.
+2. Publish Docker Hub images derived from release assets when a Docker image is explicitly validated.
 3. Keep public evidence concise and sanitized while preserving detailed maintainer records in the private repo.
 4. Revisit one final `5.6` / `CentOS 7` build as a historical closing release.
