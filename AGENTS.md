@@ -116,16 +116,3 @@ run.sh -p
 run.sh -i -> prepare/prepare_system.sh -> install scripts + limits script
 run.sh -d -> prepare/download-source.sh
 ```
-
-## Internal Planning
-
-Public repository content should stay user-facing.
-
-Internal planning materials such as:
-
-- current task tracking
-- main milestone tracking
-- detailed task archives
-- raw remote host notes
-
-should live in the maintainer private repo or a local ignored `internal/` directory, not in the public tree.

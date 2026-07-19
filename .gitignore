@@ -1,6 +1,7 @@
 work/
 work-*/
-internal/
+/internal
+/AGENTS.override.md
 prepare_release_plan.md
 
 *.tar
