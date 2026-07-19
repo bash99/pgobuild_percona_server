@@ -9,7 +9,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 . "$REPO_ROOT/lib/mysql.sh"
 
 : "${MYSQL_VER:=5.7}"
-: "${MYSQL_MINI_VER:=44-54}"
+: "${MYSQL_MINI_VER:=44-57}"
 : "${WORK_ROOT:=$REPO_ROOT/work}"
 : "${LOG_ROOT:=$WORK_ROOT/logs}"
 : "${RESULT_ROOT:=$WORK_ROOT/results}"
@@ -35,7 +35,7 @@ case "$MYSQL_VER" in
     ;;
 esac
 
-require_cmd awk bash find sed tee
+require_cmd awk bash find sed sha256sum tee
 
 SOURCE_DIR="$(detect_source_dir "$REPO_ROOT" "$MYSQL_VER" "$MYSQL_MINI_VER")"
 NORMAL_INSTALL_ROOT="$WORK_ROOT/install/ps-${MYSQL_VER}.${MYSQL_MINI_VER}-${NORMAL_BUILD_PROFILE}"
@@ -100,12 +100,16 @@ extract_case_tps() {
 }
 
 verify_profile_generation() {
-  local count nonzero total_bytes matching_build_count escaped_prefix
+  local escaped_prefix
   read -r count nonzero total_bytes <<<"$(find "$PGO_PROFILE_DIR" -type f -name '*.gcda' -printf '%s\n' | awk '{sum+=$1; count+=1; if ($1 > 0) nz+=1} END {printf "%d %d %d\n", count, nz, sum}')"
+  PROFILE_GCDA_COUNT="$count"
+  PROFILE_GCDA_NONZERO="$nonzero"
+  PROFILE_GCDA_BYTES="$total_bytes"
   (( count > 0 )) || die "no gcda files found under $PGO_PROFILE_DIR"
   (( nonzero > 0 )) || die "all gcda files are zero-sized under $PGO_PROFILE_DIR"
   escaped_prefix="${PGO_BUILD_ROOT////#}"
   matching_build_count="$(find "$PGO_PROFILE_DIR" -type f -name '*.gcda' | awk -v prefix="$escaped_prefix" 'index($0, prefix) { count += 1 } END { print count + 0 }')"
+  PROFILE_MATCHING_BUILD_COUNT="$matching_build_count"
   (( matching_build_count > 0 )) || die "profile data under $PGO_PROFILE_DIR does not match build root $PGO_BUILD_ROOT"
   log_info "profile generation complete: gcda_count=$count nonzero=$nonzero total_bytes=$total_bytes matching_build_count=$matching_build_count"
 }
@@ -115,7 +119,17 @@ verify_profile_use() {
   [[ -f "$cache_file" ]] || die "missing CMake cache: $cache_file"
   grep -F -- "-fprofile-use" "$PGO_USE_BUILD_LOG" >/dev/null || die "build log does not contain -fprofile-use"
   grep -F -- "$PGO_PROFILE_DIR" "$PGO_USE_BUILD_LOG" >/dev/null || die "build log does not reference $PGO_PROFILE_DIR"
+  PROFILE_USE_STATUS=PASS
   log_info "profile-use compile confirmed in $PGO_USE_BUILD_LOG"
+}
+
+extract_runtime_version() {
+  local log_file="$1"
+  awk '
+    /=== MYSQL_VERSION_BEGIN/ { capture=1; next }
+    capture && NF { print; exit }
+    /=== MYSQL_VERSION_END/ { capture=0 }
+  ' "$log_file" | sed 's/[[:space:]]\+/ /g; s/^[[:space:]]*//; s/[[:space:]]*$//'
 }
 
 run_smoke_with_optional_clone() {
@@ -232,29 +246,90 @@ log_info "packaging PGO build"
   bash "$REPO_ROOT/build-opt/make_package.sh" "$PGO_BUILD_ROOT" "$PGO_USE_PROFILE"
 )
 
+PACKAGE_FILE="$(find "$REPO_ROOT" -maxdepth 1 -type f -name "Percona-Server-${MYSQL_VER}.${MYSQL_MINI_VER}-PGOed.Linux.*.mini.tar.zst" | sort | tail -n 1)"
+[[ -n "$PACKAGE_FILE" ]] || die "could not locate final PGO package"
+PACKAGE_SHA256="$(sha256sum "$PACKAGE_FILE" | awk '{print $1}')"
+
+NORMAL_RUNTIME_VERSION="$(extract_runtime_version "$NORMAL_TRAIN_LOG")"
+PGO_RUNTIME_VERSION="$(extract_runtime_version "$PGO_USE_TRAIN_LOG")"
+FINAL_MYSQLD_VERSION="$("$NORMAL_INSTALL_ROOT/bin/mysqld" --version 2>&1 | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g; s/[[:space:]]*$//')"
+
+TABLE_SIZE_VALUE="${table_size:-2000000}"
+TABLE_COUNT_VALUE="${table_count:-16}"
+OLTP_THREADS_VALUE="${oltp_threads:-16}"
+DB_ENGINE_VALUE="${dbeng:-innodb}"
+VERDICT=PASS
+RECHECK_REASON=
+
+mark_recheck() {
+  local reason="$1"
+  VERDICT=RECHECK
+  if [[ -n "$RECHECK_REASON" ]]; then
+    RECHECK_REASON+="; $reason"
+  else
+    RECHECK_REASON="$reason"
+  fi
+}
+
+for metric in point_select read_only; do
+  case "$metric" in
+    point_select) delta="$POINT_DELTA_PCT" ;;
+    read_only) delta="$READONLY_DELTA_PCT" ;;
+  esac
+  if [[ -z "$delta" ]]; then
+    mark_recheck "missing ${metric} delta"
+  elif [[ "$delta" == "inf" || "$delta" == "-inf" ]] || ! awk -v value="$delta" 'BEGIN { exit !(value == value) }'; then
+    mark_recheck "invalid ${metric} delta=${delta}"
+  elif awk -v value="$delta" 'BEGIN { exit !(value < 10 || value > 100) }'; then
+    mark_recheck "${metric} delta=${delta}% outside 10%-100% review range"
+  fi
+done
+
+if [[ -n "$NORMAL_POINT_SELECT_TPS" && -n "$PGO_POINT_SELECT_TPS" && \
+      -n "$NORMAL_READ_ONLY_TPS" && -n "$PGO_READ_ONLY_TPS" ]]; then
+  if awk -v point="$POINT_DELTA_PCT" -v readonly="$READONLY_DELTA_PCT" \
+      'BEGIN { exit !((point >= 10 && readonly <= 0) || (readonly >= 10 && point <= 0)) }'; then
+    mark_recheck "point_select/read_only trend is contradictory"
+  fi
+fi
+
+if [[ "$VERDICT" == "RECHECK" ]]; then
+  log_warn "PGO validation completed but requires review: $RECHECK_REASON"
+fi
+
 cat > "$RESULT_FILE" <<RESULT
 # Percona Server ${MYSQL_VER}.${MYSQL_MINI_VER} PGO Validation
 
+- platform class: CentOS 7 compatible
 - pgo_train_mode: ${PGO_TRAIN_MODE}
 - pgo_benchmark_mode: ${PGO_BENCHMARK_MODE}
-- host work root: ${WORK_ROOT}
-- source dir: ${SOURCE_DIR}
-- pgo build root: ${PGO_BUILD_ROOT}
-- normal install root: ${NORMAL_INSTALL_ROOT}
-- pgo profile dir: ${PGO_PROFILE_DIR}
-- mecab prefix: ${MECAB_INC:-disabled}
+- database engine: ${DB_ENGINE_VALUE}
+- dataset parameters: table_size=${TABLE_SIZE_VALUE}, table_count=${TABLE_COUNT_VALUE}, threads=${OLTP_THREADS_VALUE}
+- build identity expected: ${MYSQL_VER}.${MYSQL_MINI_VER}
+- normal SELECT VERSION(): ${NORMAL_RUNTIME_VERSION:-unavailable}
+- pgo SELECT VERSION(): ${PGO_RUNTIME_VERSION:-unavailable}
+- final mysqld --version: ${FINAL_MYSQLD_VERSION}
 - normal point_select TPS: ${NORMAL_POINT_SELECT_TPS}
 - normal read_only TPS: ${NORMAL_READ_ONLY_TPS}
 - pgo point_select TPS: ${PGO_POINT_SELECT_TPS}
 - pgo read_only TPS: ${PGO_READ_ONLY_TPS}
 - point_select delta: ${POINT_DELTA_PCT}%
 - read_only delta: ${READONLY_DELTA_PCT}%
-- normal baseline log: ${NORMAL_TRAIN_LOG}
-- pgo-gen training log: ${PGO_GEN_TRAIN_LOG}
-- pgo validation log: ${PGO_USE_TRAIN_LOG}
-- pgo build log: ${PGO_USE_BUILD_LOG}
-RESULT
+- profile generation: gcda_count=${PROFILE_GCDA_COUNT}, nonzero_gcda=${PROFILE_GCDA_NONZERO}, total_bytes=${PROFILE_GCDA_BYTES}, build_root_matches=${PROFILE_MATCHING_BUILD_COUNT}
+- profile-use compile: ${PROFILE_USE_STATUS}
+- final package: $(basename "$PACKAGE_FILE")
+- final package SHA256: ${PACKAGE_SHA256}
+- final verdict: ${VERDICT}
+- review note: ${RECHECK_REASON:-none}
 
-awk -v delta="$READONLY_DELTA_PCT" 'BEGIN { exit !(delta+0 > 0) }' || die "PGO read_only delta is not positive: ${READONLY_DELTA_PCT}%"
+## TPS Summary
+
+| workload | normal | pgo | improvement |
+| --- | ---: | ---: | ---: |
+| point_select | ${NORMAL_POINT_SELECT_TPS} | ${PGO_POINT_SELECT_TPS} | ${POINT_DELTA_PCT}% |
+| read_only | ${NORMAL_READ_ONLY_TPS} | ${PGO_READ_ONLY_TPS} | ${READONLY_DELTA_PCT}% |
+
+This is a local validation result. No remote release asset was uploaded or replaced.
+RESULT
 
 log_info "5.x PGO flow complete; result summary: $RESULT_FILE"

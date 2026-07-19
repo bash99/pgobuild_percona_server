@@ -23,7 +23,7 @@ detect_distro_tag() {
 detect_pkg_version() {
   local pkgname="$1"
   local version
-  version="$(printf '%s\n' "$pkgname" | sed -r 's/^percona-server-//; s/-[Ll]inux-.*$//')"
+  version="$(printf '%s\n' "$pkgname" | sed -r 's/^percona-server-//; s/-[Ll]inux-.*$//; s/-+$//; s/-pgo$//; s/-normal$//; s/-baseline$//; s/-+$//')"
   [[ -n "$version" ]] || return 1
   printf '%s\n' "$version"
 }

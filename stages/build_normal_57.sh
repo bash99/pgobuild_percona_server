@@ -9,7 +9,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 . "$REPO_ROOT/lib/mysql.sh"
 
 : "${MYSQL_VER:=5.7}"
-: "${MYSQL_MINI_VER:=44-54}"
+: "${MYSQL_MINI_VER:=44-57}"
 : "${BUILD_PROFILE:=normal}"
 : "${WORK_ROOT:=$REPO_ROOT/work}"
 : "${LOG_ROOT:=$WORK_ROOT/logs}"
