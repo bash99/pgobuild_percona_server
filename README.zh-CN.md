@@ -54,37 +54,38 @@ Docker Hub 地址：
 
 当前已发布镜像 tag：
 
-- `bash99/percona-server-8.4-pgoed:8.4.8-8`
+- `bash99/percona-server-8.4-pgoed:8.4.10-10`
 - `bash99/percona-server-8.4-pgoed:8.4`
+- `bash99/percona-server-8.4-pgoed:latest`
 
-`8.4.10-10` release 新增了经过验证、启用 RocksDB 的 PGO 二进制 tarball。本次没有创建新的 Docker Hub 镜像 tag；当前已发布的 Docker 镜像仍然是 `8.4.8-8`。
+`8.4.10-10` Docker 镜像已由经过验证、启用 RocksDB 的 PGO tarball 构建，并通过容器 smoke test 后发布；`8.4` 和 `latest` 指向同一个镜像 digest。
 
 对应 GitHub Release：
 
-- [Percona Server 8.4.8-8 release](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.4.8-8)
+- [Percona Server 8.4.10-10 release](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.4.10-10)
 
 基本 smoke test：
 
 ```bash
-docker pull bash99/percona-server-8.4-pgoed:8.4.8-8
+docker pull bash99/percona-server-8.4-pgoed:8.4.10-10
 
-docker run --name ps8488 --rm \
+docker run --name ps841010 --rm \
   -e MYSQL_ROOT_PASSWORD=root \
   -p 13306:3306 -p 13360:33060 \
-  -d bash99/percona-server-8.4-pgoed:8.4.8-8
+  -d bash99/percona-server-8.4-pgoed:8.4.10-10
 
-docker exec -it ps8488 mysql -uroot -proot -e "SELECT VERSION();"
+docker exec -it ps841010 mysql -uroot -proot -e "SELECT VERSION();"
 ```
 
 预期版本：
 
-- `8.4.8-8`
+- `8.4.10-10`
 
 如果你还想顺手验证 MyRocks：
 
 ```bash
-docker exec -it ps8488 mysql -uroot -proot \
-  -e "INSTALL PLUGIN ROCKSDB SONAME 'ha_rocksdb.so'; SHOW PLUGINS LIKE 'ROCKSDB';"
+docker exec -it ps841010 mysql -uroot -proot \
+  -e "INSTALL PLUGIN ROCKSDB SONAME 'ha_rocksdb.so'; SELECT PLUGIN_NAME, PLUGIN_STATUS FROM INFORMATION_SCHEMA.PLUGINS WHERE PLUGIN_NAME='ROCKSDB';"
 ```
 
 镜像功能验证记录：
@@ -204,7 +205,7 @@ bash run.sh -i -d -n -p
 
 | Percona Server | 状态 | 说明 |
 | --- | --- | --- |
-| `8.4` | 主线支持 | 当前 release 的主目标；最新验证二进制为 `8.4.10-10`，已发布 Docker 镜像仍为 `8.4.8-8` |
+| `8.4` | 主线支持 | 当前 release 的主目标；最新验证二进制和 Docker 镜像均为 `8.4.10-10` |
 | `8.0` | 主线支持 | 当前 release 的主目标 |
 | `5.7` | 维护中的历史目标 | 当前已发布验证目标为 `5.7.44-57`；`5.7.44-54` 保留为上一版公开 release |
 | `5.6` | 历史 / 已收尾 | 最后一个 `CentOS 7` 兼容公开 build 已发布为 `5.6.51-93.0` |

@@ -123,6 +123,6 @@ This is intentionally "semi-automated":
 - the script handles naming, checksums, notes, tag creation, and upload
 - you still review the draft release before publishing
 
-The `8.4.10-10` release in this update publishes the validated PGO binary tarball only. The Docker Hub image remains at the previously published `8.4.8-8` tag until a separate image build and validation is completed.
+The `8.4.10-10` release now has a matching Docker Hub image after container smoke testing. The published `8.4.10-10`, `8.4`, and `latest` tags share the same image digest.
 
 That matches GitHub CLI's draft-friendly workflow well.

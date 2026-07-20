@@ -53,14 +53,15 @@ bash tools/publish_dockerhub_84_pgoed.sh
 
 That builds from:
 
-- `artifacts/Percona-Server-8.4.8-8-rocksdb/Percona-Server-8.4.8-8-PGOed.Linux.x86_64.almalinux9.mini.tar.zst`
+- `artifacts/Percona-Server-8.4.10-10-rocksdb/Percona-Server-8.4.10-10-PGOed.Linux.x86_64.almalinux9.mini.tar.zst`
 
 and pushes:
 
-- `bash99/percona-server-8.4-pgoed:8.4.8-8`
+- `bash99/percona-server-8.4-pgoed:8.4.10-10`
 - `bash99/percona-server-8.4-pgoed:8.4`
+- `bash99/percona-server-8.4-pgoed:latest` when `--push-latest` is used
 
-The latest `8.4.10-10` binary release does not publish a new Docker Hub tag. The helper's default publish target intentionally remains the previously validated `8.4.8-8` image until a separate Docker build is run.
+The `8.4.10-10` Docker image has now been built and published after container smoke testing. The `8.4` and `latest` tags point to the same published image digest.
 
 To also push `latest`:
 
@@ -101,7 +102,7 @@ Enable MyRocks explicitly if needed:
 
 ```bash
 docker exec -it ps841010 mysql -uroot -proot \
-  -e "INSTALL PLUGIN ROCKSDB SONAME 'ha_rocksdb.so'; SHOW PLUGINS LIKE 'ROCKSDB';"
+  -e "INSTALL PLUGIN ROCKSDB SONAME 'ha_rocksdb.so'; SELECT PLUGIN_NAME, PLUGIN_STATUS FROM INFORMATION_SCHEMA.PLUGINS WHERE PLUGIN_NAME='ROCKSDB';"
 ```
 
 ## Layout

@@ -14,3 +14,4 @@ artifacts/**
 !artifacts/Percona-Server-8.4.7-7/Percona-Server-8.4.7-7-PGOed.Linux.x86_64.almalinux9.mini.tar.zst
 !artifacts/Percona-Server-8.4.8-8/Percona-Server-8.4.8-8-PGOed.Linux.x86_64.almalinux9.mini.tar.zst
 !artifacts/Percona-Server-8.4.8-8-rocksdb/Percona-Server-8.4.8-8-PGOed.Linux.x86_64.almalinux9.mini.tar.zst
+!artifacts/Percona-Server-8.4.10-10-rocksdb/Percona-Server-8.4.10-10-PGOed.Linux.x86_64.almalinux9.mini.tar.zst

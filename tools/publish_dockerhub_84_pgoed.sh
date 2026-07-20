@@ -9,7 +9,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 : "${DOCKER_REPO:=bash99/percona-server-8.4-pgoed}"
 : "${DOCKERFILE_PATH:=docker/percona-server-8.4-pgoed/Dockerfile}"
-: "${PS_TARBALL:=artifacts/Percona-Server-8.4.8-8-rocksdb/Percona-Server-8.4.8-8-PGOed.Linux.x86_64.almalinux9.mini.tar.zst}"
+: "${PS_TARBALL:=artifacts/Percona-Server-8.4.10-10-rocksdb/Percona-Server-8.4.10-10-PGOed.Linux.x86_64.almalinux9.mini.tar.zst}"
 : "${PUSH_LATEST:=OFF}"
 : "${PUSH_MAJOR:=ON}"
 : "${DOCKER_BUILD_CONTEXT:=.}"

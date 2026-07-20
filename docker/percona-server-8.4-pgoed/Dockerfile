@@ -9,7 +9,7 @@ LABEL org.opencontainers.image.title="Percona Server (PGOed community build)" \
 # Default to the locally produced RocksDB-enabled mini package in this repo.
 # Build with repo root as context:
 #   docker build -f docker/percona-server-8.4-pgoed/Dockerfile .
-ARG PS_TARBALL="artifacts/Percona-Server-8.4.8-8-rocksdb/Percona-Server-8.4.8-8-PGOed.Linux.x86_64.almalinux9.mini.tar.zst"
+ARG PS_TARBALL="artifacts/Percona-Server-8.4.10-10-rocksdb/Percona-Server-8.4.10-10-PGOed.Linux.x86_64.almalinux9.mini.tar.zst"
 ARG PS_BASEDIR="/usr/local/percona-server"
 
 ENV PS_BASEDIR="${PS_BASEDIR}"
@@ -43,7 +43,7 @@ RUN set -eux; \
     microdnf -y reinstall tzdata; \
     \
     curl -fsSL -o /tmp/jemalloc.rpm https://rpmfind.net/linux/epel/9/Everything/x86_64/Packages/j/jemalloc-5.2.1-2.el9.x86_64.rpm; \
-    curl -fsSL -o /tmp/mecab.rpm https://rpmfind.net/linux/almalinux/9.7/AppStream/x86_64/os/Packages/mecab-0.996-3.module_el9.6.0+152+8cbce00c.4.x86_64.rpm; \
+    curl -fsSL -o /tmp/mecab.rpm https://rpmfind.net/linux/almalinux/9.8/AppStream/x86_64/os/Packages/mecab-0.996-3.module_el9.6.0+152+8cbce00c.4.x86_64.rpm; \
     rpm -Uvh /tmp/jemalloc.rpm /tmp/mecab.rpm; \
     microdnf clean all; \
     rm -f /tmp/jemalloc.rpm /tmp/mecab.rpm; \

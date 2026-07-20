@@ -54,37 +54,38 @@ Docker Hub:
 
 Current published image tags:
 
-- `bash99/percona-server-8.4-pgoed:8.4.8-8`
+- `bash99/percona-server-8.4-pgoed:8.4.10-10`
 - `bash99/percona-server-8.4-pgoed:8.4`
+- `bash99/percona-server-8.4-pgoed:latest`
 
-The `8.4.10-10` release adds a validated RocksDB-enabled PGO binary tarball. No new Docker Hub image tag was created in that release; the published Docker image remains `8.4.8-8`.
+The `8.4.10-10` Docker image was built from the validated RocksDB-enabled PGO tarball and published after container smoke testing. The `8.4` and `latest` tags point to the same image digest.
 
 Matching GitHub release:
 
-- [Percona Server 8.4.8-8 release](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.4.8-8)
+- [Percona Server 8.4.10-10 release](https://github.com/bash99/pgobuild_percona_server/releases/tag/8.4.10-10)
 
 Basic smoke test:
 
 ```bash
-docker pull bash99/percona-server-8.4-pgoed:8.4.8-8
+docker pull bash99/percona-server-8.4-pgoed:8.4.10-10
 
-docker run --name ps8488 --rm \
+docker run --name ps841010 --rm \
   -e MYSQL_ROOT_PASSWORD=root \
   -p 13306:3306 -p 13360:33060 \
-  -d bash99/percona-server-8.4-pgoed:8.4.8-8
+  -d bash99/percona-server-8.4-pgoed:8.4.10-10
 
-docker exec -it ps8488 mysql -uroot -proot -e "SELECT VERSION();"
+docker exec -it ps841010 mysql -uroot -proot -e "SELECT VERSION();"
 ```
 
 Expected version:
 
-- `8.4.8-8`
+- `8.4.10-10`
 
 Enable and verify MyRocks if needed:
 
 ```bash
-docker exec -it ps8488 mysql -uroot -proot \
-  -e "INSTALL PLUGIN ROCKSDB SONAME 'ha_rocksdb.so'; SHOW PLUGINS LIKE 'ROCKSDB';"
+docker exec -it ps841010 mysql -uroot -proot \
+  -e "INSTALL PLUGIN ROCKSDB SONAME 'ha_rocksdb.so'; SELECT PLUGIN_NAME, PLUGIN_STATUS FROM INFORMATION_SCHEMA.PLUGINS WHERE PLUGIN_NAME='ROCKSDB';"
 ```
 
 Detailed image verification:
@@ -204,7 +205,7 @@ Notes:
 
 | Percona Server | Status | Notes |
 | --- | --- | --- |
-| `8.4` | active | current primary release target; latest validated binary is `8.4.10-10`, while the published Docker image remains `8.4.8-8` |
+| `8.4` | active | current primary release target; latest validated binary and Docker image are `8.4.10-10` |
 | `8.0` | active | current primary release target |
 | `5.7` | maintained legacy target | latest published validation target is `5.7.44-57`; `5.7.44-54` remains the previous published release |
 | `5.6` | historical / closed | final `CentOS 7` compatible public build published as `5.6.51-93.0` |
